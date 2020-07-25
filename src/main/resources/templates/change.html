@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="zh-cmn-Hans" xmlns:th="http://www.thymeleaf.org" >
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+    <meta name="description" content=""/>
+    <meta name="author" content=""/>
+    <link rel="icon" href="../../favicon.ico"/>
+    <script src="/layer/jquery-3.4.1.min.js"></script>
+    <title>项目变更</title>
+    <style>
+        body{
+            font-size:14px;
+        }
+        .d-bulk{
+            margin-top:20px;
+        }
+        .d-title{
+            font-size:16px;
+        }
+        .b-font{
+            background-color: #003654;
+            color:white;
+        }
+        .d-content{
+            margin-top:10px;
+        }
+        .d-line{
+            margin-bottom:5px;
+        }
+
+        input,select{
+            outline-style: none;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            padding: 3px 3px;
+            width: 300px;
+            font-size: 14px;
+            font-weight: 700;
+            font-family: "Microsoft soft";
+        }
+
+        .s-wid{
+            width:308px;
+        }
+
+        .ele-right{
+            margin-left:20px;
+        }
+        .ele-l{
+            width:120px;
+            display: inline-block;
+            text-align: right;
+        }
+        .button1 {
+            -webkit-transition-duration: 0.4s;
+            transition-duration: 0.4s;
+            padding: 3px 12px;
+            text-align: center;
+            background-color: white;
+            color: black;
+            border: 2px solid #4CAF50;
+            border-radius:5px;
+        }
+
+        .button1:hover {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .btn-margin{
+            margin-right:10px;
+        }
+
+        .d-btn{
+            width:1000px;
+            padding-top:30px;
+            padding-bottom:10px;
+            border-top:1px dotted #785;
+            border-bottom:1px solid #aaa;
+            text-align: center;
+        }
+
+    </style>
+</head>
+
+<body th:status="${status}">
+<div class="d-bulk">
+    <div class="d-title"><span class="b-font">§ 项目信息</span></div>
+    <div class="d-content">
+        <div class="d-line">
+            <div ><label class="ele-l">项目编号:</label><input type="text" id="code" th:value="${code}" disabled="disabled" />
+              <label class="ele-l">项目下达时间:</label><input type="date" id="start_time" th:value="${startTime}" /></div>
+        </div>
+        <div class="d-line">
+            <div ><label class="ele-l">项目名称:</label><input type="text" id="name" th:value="${name}" />
+              <label class="ele-l">要求完成时间:</label><input type="date" id="end_time" th:value="${endTime}" /></div>
+        </div>
+        <div class="d-line">
+            <div ><label class="ele-l" >型号:</label><input type="text" id="model" th:value="${model}"/>
+              <label class="ele-l">关注度:</label><select name="concern_level" id="concern_level" class="s-wid" th:value="${concernLevel}">
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+            </select></div>
+        </div>
+        <div class="d-line"><label class="ele-l" >项目负责人:</label><input type="text" id="charge_man" th:value="${chargeMan}" /></div>
+        <div class="d-line"><label class="ele-l">项目组成员:</label><input type="text" id="members" th:value="${members}" style="width:1000px;"/>&nbsp&nbsp不含负责人,成员之间用中文，分隔</div>
+    </div>
+</div>
+<div class="d-bulk">
+    <div class="d-title"><span class="b-font">§ 主要技术要求（工作内容）</span></div>
+    <div class="d-content">
+        <label class="ele-l"> </label>
+        <textarea rows="5" cols="120" id="content" th:text="${content}"> </textarea>
+    </div>
+</div>
+
+<div class="d-bulk">
+    <div class="d-title"><span class="b-font">§ 项目进程方案</span></div>
+    <div class="d-content">
+        <div > <label class="ele-l">预计完成时间:</label><input type="date" id="scheme_time" th:value="${schemeTime}"/>
+          <label class="ele-l">节点负责人:</label><input type="text" id="scheme_man" th:value="${schemeMan}"/></div>
+    </div>
+</div>
+<div class="d-bulk">
+    <div class="d-title"><span class="b-font">§ 手板/开模</span></div>
+    <div class="d-content">
+        <div class=""> <label class="ele-l">预计完成时间:</label><input type="date" id="phone_time" th:value="${phoneTime}" />
+            <label class="ele-l">节点负责人:</label><input type="text" id="phone_man" th:value="${phoneMan}" /></div>
+    </div>
+</div>
+<div class="d-bulk">
+    <div class="d-title"><span class="b-font">§ 样机</span></div>
+    <div class="d-content">
+        <div class=""> <label class="ele-l">预计完成时间:</label><input type="date" id="prototype_time" th:value="${prototypeTime}" />
+          <label class="ele-l">节点负责人:</label><input type="text" id="prototype_man" th:value="${prototypeMan}" /></div>
+    </div>
+</div>
+<div class="d-bulk">
+    <div class="d-title"><span class="b-font">§ 测试</span></div>
+    <div class="d-content">
+        <div class=""> <label class="ele-l">预计完成时间:</label><input type="date" id="test_time" th:value="${testTime}"  />
+           <label class="ele-l">节点负责人:</label><input type="text" id="test_man" th:value="${testMan}" /></div>
+    </div>
+</div>
+<div class="d-bulk">
+    <div class="d-title"><span class="b-font">§ 资料发布</span></div>
+    <div class="d-content">
+        <div class=""> <label class="ele-l">预计完成时间:</label><input type="date" id="publish_time" th:value="${publishTime}" readonly="readonly" />
+          <label class="ele-l">节点负责人:</label><input type="text" id="publish_man" th:value="${publishMan}" /></div>
+    </div>
+</div>
+<div class="d-bulk">
+    <div class="d-title"><span class="b-font">§ 变更原因</span></div>
+    <div class="d-content">
+        <textarea rows="5" cols="120" id="change_reason"> </textarea>
+    </div>
+</div>
+
+<div class="d-bulk d-btn">
+    <button class="button1 btn-margin" id="b-change">变更</button>
+    <button class="button1 btn-margin" id="b-pause">项目暂停</button>
+    <button class="button1 btn-margin" id="b-cancel">返回</button>
+</div>
+
+<script>
+    $(function() {
+        var concernLevel = $("#concern_level").attr("value");
+        $("#concern_level").find("option[value='"+concernLevel+"']").attr("selected",true);
+        var status = parseInt($("body").attr("status"));
+        if(status==0){
+            $("#b-pause").text("项目继续");
+        }
+        $("#b-change").click(function(){
+            if(status==0){
+                alert("项目已暂停，请先继续项目！");
+                return;
+            }
+            var code = $("#code").val().trim();
+            var name = $("#name").val().trim();
+            var model = $("#model").val().trim();
+            var startTime = $("#start_time").val();
+            if(null==startTime||""==startTime){
+                alert("项目下达时间不能为空！");
+                return;
+            }
+            var endTime = $("#end_time").val();
+            if(null==endTime||""==endTime){
+                alert("要求完成时间不能为空！");
+                return;
+            }
+            var concernLevel = $("#concern_level").val();
+            var chargeMan = $("#charge_man").val().trim();
+            var members = $("#members").val().trim();
+            var content = $("#content").val();
+            var schemeTime = $("#scheme_time").val();
+            if(null==schemeTime||""==schemeTime){
+                alert("方案预计完成时间不能为空！");
+                return;
+            }
+            var schemeMan = $("#scheme_man").val().trim();
+            var phoneTime = $("#phone_time").val();
+            if(null==phoneTime||""==phoneTime){
+                alert("手板/开模预计完成时间不能为空！");
+                return;
+            }
+            var phoneMan = $("#phone_man").val().trim();
+            var prototypeTime = $("#prototype_time").val();
+            if(null==prototypeTime||""==prototypeTime){
+                alert("样机预计完成时间不能为空！");
+                return;
+            }
+            var prototypeMan = $("#prototype_man").val().trim();
+            var testTime = $("#test_time").val();
+            if(null==testTime||""==testTime){
+                alert("测试预计完成时间不能为空！");
+                return;
+            }
+            var testMan = $("#test_man").val().trim();
+            var publishTime = $("#publish_time").val();
+            if(null==publishTime||""==publishTime){
+                alert("资料发布预计完成时间不能为空！");
+                return;
+            }
+            var publishMan = $("#publish_man").val().trim();
+            var reason = $("#change_reason").val().trim();
+            // if(schemeTime>phoneTime){
+            //     alert("方案时间不能晚于手板/开模时间！");
+            //     return;
+            // }
+            // if(phoneTime>prototypeTime){
+            //     alert("手板/开模时间不能晚于样机时间！");
+            //     return;
+            // }
+            // if(prototypeTime>testTime){
+            //     alert("样机时间不能晚于测试时间！");
+            //     return;
+            // }
+            // if(testTime>publishTime){
+            //     alert("测试时间不能晚于资料发布时间！");
+            //     return;
+            // }
+            // if(publishTime>endTime){
+            //     alert("资料发布时间不能晚于要求完成时间！");
+            //     return;
+            // }
+            var totalMembers = new Array();
+            var chargeMan = $("#charge_man").val().trim();
+            if(null!=chargeMan&&""!=chargeMan) {
+                totalMembers.push(chargeMan);
+            }
+            if(null!=members&&""!=members) {
+                var membersArr = members.split("，");
+                totalMembers.push.apply(totalMembers, membersArr);
+            }
+            if(null!=schemeMan&&""!=schemeMan&&totalMembers.indexOf(schemeMan)<0){
+                alert("方案节点负责人不在项目负责人和成员范围内，请修改！");
+                return;
+            }
+            if(null!=phoneMan&&""!=phoneMan&&totalMembers.indexOf(phoneMan)<0){
+                alert("手板/开模节点负责人不在项目负责人和成员范围内，请修改！");
+                return;
+            }
+            if(null!=prototypeMan&&""!=prototypeMan&&totalMembers.indexOf(prototypeMan)<0){
+                alert("样机节点负责人不在项目负责人和成员范围内，请修改！");
+                return;
+            }
+            if(null!=testMan&&""!=testMan&&totalMembers.indexOf(testMan)<0){
+                alert("测试节点负责人不在项目负责人和成员范围内，请修改！");
+                return;
+            }
+            if(null!=publishMan&&""!=publishMan&&totalMembers.indexOf(publishMan)<0){
+                alert("资料发布节点负责人不在项目负责人和成员范围内，请修改！");
+                return;
+            }
+            if(null==reason||""==reason){
+                alert("变更原因必填！");
+                return;
+            }
+            $.ajax({
+                url: "/pro/item/modItem",
+                data: {code:code,name:name,model:model,startTime:startTime,endTime:endTime,concernLevel:concernLevel,chargeMan:chargeMan,members:members,content:content,
+                    schemeTime:schemeTime,schemeMan:schemeMan,phoneTime:phoneTime,phoneMan:phoneMan,prototypeTime:prototypeTime,prototypeMan:prototypeMan,testTime:testTime,testMan:testMan,
+                    publishTime:publishTime,publishMan:publishMan,reason:reason},
+                type: "POST",
+                success: function (result) {
+                    if(result.code=="0001"){
+                        alert(result.message);
+                    } else if(result.code=="0000"){
+                        alert("变更成功!");
+                        window.location.href = "/pro/item";
+                    }
+                }
+            });
+        });
+
+        $("#b-pause").click(function(){
+
+            var code = $("#code").val();
+            var reason = $("#change_reason").val().trim();
+            if(null==reason||""==reason){
+                alert("变更原因必填！");
+                return;
+            }
+            if(status==0) {
+                $.ajax({
+                    url: "/pro/item/updateStatus",
+                    data: {code: code, status: 1, reason: reason},
+                    type: "POST",
+                    success: function (result) {
+                        if (result.code == "0001") {
+                            alert(result.message);
+                        } else if (result.code == "0000") {
+                            alert("继续成功!");
+                            window.location.href = "/pro/item";
+                        }
+                    }
+                });
+            } else if(status==1){
+                $.ajax({
+                    url: "/pro/item/updateStatus",
+                    data: {code: code, status: 0, reason: reason},
+                    type: "POST",
+                    success: function (result) {
+                        if (result.code == "0001") {
+                            alert(result.message);
+                        } else if (result.code == "0000") {
+                            alert("暂停成功!");
+                            window.location.href = "/pro/item";
+                        }
+                    }
+                });
+            }
+        });
+
+        $("#b-cancel").click(function () {
+            window.location.href = "/pro/item";
+        });
+
+        $("#end_time").change(function(){
+            $("#publish_time").val($("#end_time").val());
+        });
+
+    });
+</script>
+
+</body>
+</html>

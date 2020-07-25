@@ -1,0 +1,207 @@
+<html lang="zh-CN">
+<html lang="zh-cmn-Hans" xmlns:th="http://www.thymeleaf.org" >
+<head>
+    <!-- copy from https://blog.csdn.net/lxc2314554296/article/details/78343805/-->
+    <meta charset="UTF-8">
+    <title>login</title>
+
+    <script src="/layer/jquery-3.4.1.min.js"></script>
+    <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body>
+
+<style>
+    body {
+        font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+        font-size: 14px;
+        line-height: 1.42857143;
+        color: #333;
+        background-color: #fff;
+    }
+    .container {
+        padding-right: 15px;
+        padding-left: 15px;
+        margin-right: auto;
+        margin-left: auto;
+        width: 970px;
+    }
+    .form {
+        background: rgba(255, 255, 255, 0.2);
+        width: 420px;
+        margin: 120px auto;
+    }
+    .col-md-offset-3 {
+        margin-left: 25%;
+        height: 22%;
+    }
+    .h3, h3 {
+        font-size: 24px;
+    }
+    .h1, .h2, .h3, h1, h2, h3 {
+        margin-top: 20px;
+        margin-bottom: 10px;
+    }
+    .h1, .h2, .h3, .h4, .h5, .h6, h1, h2, h3, h4, h5, h6 {
+        font-family: inherit;
+        font-weight: 500;
+        line-height: 1.1;
+        color: inherit;
+    }
+    * {
+        -webkit-box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        box-sizing: border-box;
+    }
+    user agent stylesheet
+    h3 {
+        display: block;
+        font-size: 1.17em;
+        margin-block-start: 1em;
+        margin-block-end: 1em;
+        margin-inline-start: 0px;
+        margin-inline-end: 0px;
+        font-weight: bold;
+    }
+    .col-lg-1, .col-lg-10, .col-lg-11, .col-lg-12, .col-lg-2, .col-lg-3, .col-lg-4, .col-lg-5, .col-lg-6, .col-lg-7, .col-lg-8, .col-lg-9, .col-md-1, .col-md-10, .col-md-11, .col-md-12, .col-md-2, .col-md-3, .col-md-4, .col-md-5, .col-md-6, .col-md-7, .col-md-8, .col-md-9, .col-sm-1, .col-sm-10, .col-sm-11, .col-sm-12, .col-sm-2, .col-sm-3, .col-sm-4, .col-sm-5, .col-sm-6, .col-sm-7, .col-sm-8, .col-sm-9, .col-xs-1, .col-xs-10, .col-xs-11, .col-xs-12, .col-xs-2, .col-xs-3, .col-xs-4, .col-xs-5, .col-xs-6, .col-xs-7, .col-xs-8, .col-xs-9 {
+        position: relative;
+        min-height: 1px;
+        padding-right: 15px;
+        padding-left: 15px;
+    }
+    .form-horizontal .form-group {
+        margin-right: -15px;
+        margin-left: -15px;
+    }
+    .form-group {
+        margin-bottom: 15px;
+    }
+    .fa {
+        display: inline-block;
+        top: 27px;
+        left: 6px;
+        position: relative;
+        color: #ccc;
+    }
+    .fa-lg {
+        font-size: 1.33333333em;
+        line-height: .75em;
+        vertical-align: -15%;
+    }
+    .fa {
+        font: normal normal normal 14px/1 FontAwesome;
+        text-rendering: auto;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+
+    .pull-right {
+        float: right!important;
+    }
+    .btn-success {
+        color: #fff;
+        background-color: #5cb85c;
+        border-color: #4cae4c;
+    }
+    .btn {
+        display: inline-block;
+        padding: 6px 12px;
+        margin-bottom: 0;
+        margin-right: 20px;
+        font-size: 14px;
+        font-weight: 400;
+        line-height: 1.42857143;
+        text-align: center;
+        white-space: nowrap;
+        vertical-align: middle;
+        touch-action: manipulation;
+        cursor: pointer;
+        user-select: none;
+        background-image: none;
+        border: 1px solid transparent;
+        border-radius: 4px;
+    }
+    button, input, select, textarea {
+        font-family: inherit;
+    }
+    button, html input[type=button], input[type=reset], input[type=submit] {
+        -webkit-appearance: button;
+    }
+    button, select {
+        text-transform: none;
+    }
+    button {
+        overflow: visible;
+    }
+    button, input, optgroup, select, textarea {
+        margin: 0;
+        font: inherit;
+    }
+    * {
+        box-sizing: border-box;
+    }
+    user agent stylesheet
+    button {
+        -webkit-writing-mode: horizontal-tb !important;
+        text-rendering: auto;
+        letter-spacing: normal;
+        word-spacing: normal;
+        text-indent: 0px;
+        text-shadow: none;
+        align-items: flex-start;
+    }
+    .f-span{
+        color:#F00;
+    }
+    input[type="text"], input[type="password"]{
+        padding-left:5px;
+    }
+    .t-lb{
+        display:inline-block;
+        width:50px;
+    }
+</style>
+
+<div class="container">
+    <div class="form row">
+        <div class="form-horizontal col-md-offset-3" id="login_form">
+            <h3 class="form-title">LOGIN</h3>
+            <form action="/login/verify" method="post">
+                <div class="col-md-9">
+                    <div class="form-group">
+                        <label class="t-lb">用户名:</label>
+                        <input class="form-control required" type="text" placeholder="Usercode" id="usercode"
+                               name="usercode" autofocus="autofocus" maxlength="20"/>
+                    </div>
+                    <div class="form-group">
+                        <label class="t-lb">密码:</label>
+                        <input class="form-control required" type="password" placeholder="Password" id="password"
+                               name="password" maxlength="20"/>
+                    </div>
+                    <div class="form-group">
+                        <label class="checkbox">
+                            <input type="checkbox" name="remember" value="1"/>记住我
+                        </label>
+                    </div>
+                    <div class="form-group col-md-offset-9">
+                        <button type="submit" class="btn btn-success pull-right" name="submit">登录</button>
+                    </div>
+                    <div class="form-group">
+                        <span type="text" id="msg" class="f-span" th:text="${msg}"></span>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function() {
+        setTimeout("eraseMsg()",8000);
+    });
+
+    function eraseMsg(){
+        $("#msg").text("");
+    }
+</script>
+</body>
+</html>

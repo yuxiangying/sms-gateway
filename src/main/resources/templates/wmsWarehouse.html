@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <link rel="shortcut icon fluid-icon" href="./favicon.ico" type="image/ico">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <script type="text/javascript" src="https://cdn.polyfill.io/v2/polyfill.min.js?features=es6"></script>
+    <script type="text/javascript" src="/layer/echarts.min.js"></script>
+    <script type="text/javascript" src="/layer/jquery-3.4.1.min.js"></script>
+    <title>百胜智慧工厂大屏系统</title>
+    <link rel="shortcut icon" href="./favicon.ico">
+</head>
+<body>
+<style>
+    html, body{
+        margin:0px;
+        color: #afcff8;
+    }
+    #app, #app > div{
+        height:100%;
+        width:100%;
+    }
+    .warehouse-center{
+        background: #036;
+    }
+    .top{position:relative;margin-bottom:15px;height:88px;background:url(/img/top_name.72ede91.png) 50%/cover}
+    .top-date{position:absolute;bottom:13px;right:36px;font-size:24px;color:#6792f2}
+    .warehouse-content{height:53%;margin:0 30px 10px}
+    .flex-row{display:flex;}
+    .left{
+        width:23%;
+        margin-right:10px;
+    }
+    .left-echarts{
+        margin-bottom:10px;
+    }
+    .border{
+        background: #0b2352;
+        border: 2px solid #005e91;
+        border-radius: 4px;
+    }
+    .flex-col{
+        -webkit-box-orient: vertical;
+        -webkit-box-direction: normal;
+        flex-flow: column;
+        display: flex;
+    }
+    .echarts-title{
+        -webkit-box-align:center;
+        align-items:center;
+        padding:23px 24px 27px;
+        font-size:18px;
+    }
+    .flex-row{
+        display: flex;
+    }
+    div[data-v-0015f56e]{
+        box-sizing:border-box;
+        color:#afcff8
+    }
+    .title-icon{
+        margin-right:22px;
+        width:8px;
+        height:8px;
+        background:#3a88ff;
+    }
+
+    #echarts-left{
+        height:209px;
+        width:100%;
+        flex-grow:1;
+        -webkit-box-flex:1;
+    }
+    .table-title, .echarts-title {
+        align-items: center;
+        padding: 23px 24px 27px 24px;
+        font-size: 18px;
+    }
+
+    .left-table-head {
+        padding: 0 30px 10px 30px;
+        border-bottom: 1px solid #005E91;
+    }
+    .left-table-head > div:first-child {
+        width: 31%;
+    }
+    .left-table-head > div:not(:first-child) {
+        width: 23%;
+        font-size: 16px;
+        color: #638BE8;
+    }
+
+    .left-table-body {
+        padding: 17px 30px 0 30px;
+    }
+    .left-table-item {
+        padding-bottom: 20px;
+    }
+    .left-table-item > div:first-child {
+        width: 31%;
+    }
+    .left-table-item > div:not(:first-child) {
+        width: 23%;
+    }
+    .center {
+        width: 45%;
+        margin-right: 10px;
+    }
+    .center-table1 {
+        padding: 22px;
+        margin-bottom: 10px;
+    }
+    .center-table1-item {
+        align-items: center;
+        margin-bottom: 0px;
+        -webkit-box-align: center;
+    }
+    .center-table1-left>div{
+        /* TODO width: 33%;   */
+    }
+    .top-pm{
+        margin-right:60px;
+    }
+    .center-table1-content {
+        flex-grow: 1;
+        justify-content: space-between;
+        align-items: center;
+        /* width: calc(100% - 140px); */
+    }
+    .left-table-item>div:first-child{
+        width:31%;
+    }
+    .center-table2{
+        flex-grow: 1;
+        -webkit-box-flex: 1;
+    }
+    .center-table2-body {
+        padding: 0 30px;
+    }
+    .center-table2-item {
+        padding: 18px 0;
+        font-size: 18px;
+        /* border-bottom: 1px solid rgba(197, 196, 202, .1); */
+    }
+    .center-table2-item:first-child {
+        /* padding-top: 0; */
+        /* border-bottom: 1px solid rgba(197, 196, 202, .1);  */
+    }
+    .center-table2-item:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+    .matter-code {
+        width: 26%;
+    }
+    .matter-name {
+        width: 48%;
+        overflow: hidden;
+    }
+    .matter-action {
+        width: 13%;
+    }
+    .matter-num {
+        width: 13%;
+    }
+    .green {
+        color: #00D98B!important;
+    }
+    .yellow {
+        color: #E9AF00!important;
+    }
+
+    .center-table2-list-wrapper {
+        position: relative;
+        height: 400px;
+        overflow:hidden;
+    }
+    .center-table2-list {
+        position: absolute;
+        width: 100%;
+    }
+    .right {
+        flex-grow: 1;
+    }
+    #echarts-right {
+        flex-grow: 1;
+    }
+    .foot {
+        margin: 0 30px;
+        height: 335px;
+    }
+    .foot-echarts {
+        width: calc(50% - 5px);
+    }
+    #echarts-foot-left, #echarts-foot-right {
+        -webkit-box-flex:1;
+        flex-grow: 1;
+    }
+
+</style>
+
+<div id="app">
+    <div class="warehouse-center" data-v-0015f56e="">
+        <div class="top" data-v-0015f56e=""><div class="top-date" data-v-0015f56e="" id="d-date"></div></div>
+        <div class="warehouse-content flex-row" data-v-0015f56e="">
+            <div class="left">
+                <div class="left-echarts border flex-col">
+                    <div class="echarts-title flex-row">
+                        <div class="title-icon"></div>
+                        <div>年度目标<span id="total-goal"></span>亿</div>
+                    </div>
+                    <div id="echarts-left"></div>
+                </div>
+                <!-- 本月部门发货情况 -->
+                <div class="left-table border">
+                    <div class="table-title flex-row">
+                        <div class="title-icon"></div>
+                        <div>本月销售发货任务完成率</div>
+                    </div>
+                    <div class="left-table-head flex-row">
+                        <div>渠道</div>
+                        <div>销售额</div>
+                        <div>任务额</div>
+                        <div>达成率</div>
+                    </div>
+                    <div class="left-table-body"  id="div-top4">
+                    </div>
+                </div>
+            </div>
+
+            <div class="center flex-col">
+                <div class="center-table1 border">
+                    <div class="center-table1-item flex-row" style="font-size:20px;">
+                        <div class="title-icon"></div>
+                        <div style="margin-right:60px">日出库情况</div>
+                        <div class="center-table1-content flex-row">
+                            <div class="center-table1-left flex-row">
+                                <div class="top-pm">今日&nbsp;<span id="today-total"></span>万</div>
+                                <div class="top-pm">任务额&nbsp;<span id="today-task"></span>万</div>
+                                <div class="top-pm">达成率&nbsp;<span id="today-percent"></span>%</div>
+                            </div>
+                            <div class="line-col"></div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="center-table2 border">
+                    <div class="table-title flex-row" style="font-size:15px;">
+                        <div class="title-icon"></div>
+                        <div>最新出入库</div>
+                    </div>
+                    <div class="center-table2-body" style="font-size:14px;">
+                        <div class="center-table2-item flex-row" style="border-bottom: 1px solid rgba(197, 196, 202, .1);">
+                            <div class="matter-code">物料代码</div>
+                            <div class="matter-name">物料名称</div>
+                            <div class="matter-action">类型</div>
+                            <div class="matter-num">数量</div>
+                        </div>
+                        <div class="center-table2-list-wrapper">
+                            <!-- <transition class="inner-container2" name="slide" mode="out-in"> -->
+                            <div class="center-table2-list" id="div-ruchu">
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            <div class="right flex-col border">
+                <!-- 车间日产量图 -->
+                <div class="table-title flex-row" style="font-size:15px;">
+                    <div class="title-icon"></div>
+                    <div>各车间日生产入库数</div>
+                </div>
+                <div id="echarts-right"></div>
+            </div>
+        </div>
+
+        <div class="foot flex-row">
+            <div class="foot-echarts flex-col border" style="margin-right:10px;">
+                <div class="echarts-title flex-row">
+                    <div class="title-icon"></div>
+                    <div>产品分类库存图</div>
+                </div>
+                <div id="echarts-foot-left"></div>
+            </div>
+            <div class="foot-echarts flex-col border">
+                <div class="echarts-title flex-row">
+                    <div class="title-icon"></div>
+                    <div>各销售部日达成率 (近10天)</div>
+                </div>
+                <div id="echarts-foot-right" ></div>
+            </div>
+        </div>
+
+    </div>
+</div>
+<script >
+    $(function () {
+        renderYearRate();
+        renderMonthTop4();
+        renderRuchu();
+        renderWorkshop();
+        renderFootleft();
+        renderFootright();
+    });
+
+    /*
+     * 年度完成情况
+     */
+    function renderYearRate(){
+        $.ajax({
+            url: "/wmsMonthOutputSum",
+            type: "GET",
+            timeout : 15000,
+            success: function (result) {
+                var nowTime = result.message;
+                setInterval("timer()",1000);
+                $("#d-date").text(nowTime);
+                var data = result.data;
+                var sum = parseInt(data.yearsum);
+                var task = parseInt(data.yeartask);
+                var rate = (sum*100/task).toFixed(2);
+                var totalGoal = (parseInt(data.yeartask)/10000).toFixed(2);
+                $("#total-goal").text(totalGoal);
+                var option = {
+                    tooltip: {
+                        trigger: 'item',
+                        formatter: "{a} <br/>{b}: {c} ({d}%)"
+                    },
+                    legend: {
+                        orient: 'vertical',
+                        x: 'left',
+                        data:['未完成','已完成']
+                    },
+                    series: [
+                        {
+                            name:'访问来源',
+                            type:'pie',
+                            selectedMode: 'single',
+                            radius: [0, '80%'],
+
+                            label: {
+                                normal: {
+                                    position: 'inner'
+                                }
+                            },
+                            labelLine: {
+                                normal: {
+                                    show: false
+                                }
+                            },
+                            data:[
+                                {value:335, name:'', selected:false,itemStyle: { color: 'rgba(0, 0, 0,.1)' }},
+                            ]
+                        },
+                        {
+                            name:'年度达成率',
+                            type:'pie',
+                            radius: ['60%', '70%'],
+                            avoidLabelOverlap: false,
+                            label: {
+                                normal: {
+                                    show: true,
+                                    fontSize: '30',
+                                    position: 'center'
+                                },
+                                emphasis: {
+                                    show: true,
+                                    textStyle: {
+                                        fontSize: '40',
+                                        fontWeight: 'bold'
+                                    }
+                                }
+                            },
+                            labelLine: {
+                                normal: {
+                                    show: false
+                                }
+                            },
+                            data:[
+                                // TODO rate对上了，其他的没有对上
+                                {value:sum, name:rate+'%',itemStyle:{color:'#005E91'}},
+                                {value:task-sum>0?task-sum:0, name:'',selected:false,itemStyle: { color: 'rgba(175,207,248,.5)',opacity:0}},
+                            ]
+                        }
+                    ]
+                };
+                var myChart = echarts.init(document.getElementById("echarts-left"));
+                myChart.setOption(option);
+                var todaySum = parseInt(data.daysum==null?"0":data.daysum);
+                var todayTask = parseInt(data.daytask);
+                $("#today-total").text((todaySum/10000).toFixed(2));
+                $("#today-task").text((todayTask/10000).toFixed(2));
+                $("#today-percent").text((todaySum*100/todayTask).toFixed(0));
+            }
+        });
+    }
+
+    /*
+     * 月度完成率top4
+     */
+    function renderMonthTop4(){
+        $.ajax({
+            url: "/wmsMonthTop4",
+            type: "GET",
+            timeout : 15000,
+            success: function (result) {
+                var data = result.data;
+                if(null!=data&&data.length>0){
+                    var divs = "";
+                    var totalAmount =0;
+                    var totalMonthtask = 0;
+                    for(var i=0;i<5;i++){
+                        totalAmount += parseInt(data[i].amount);
+                        totalMonthtask += parseInt(data[i].monthtask);
+                        var amount = (parseInt(data[i].amount)/10000).toFixed(2);
+                        var monthtask = (parseInt(data[i].monthtask)/10000).toFixed(2);
+                        var monthPercent = (parseInt(data[i].amount)*100/parseInt(data[i].monthtask)).toFixed(2);
+                        var divEle = "<div class=\"left-table-item flex-row\"><div>"+data[i].materialName+"</div> <div>"+amount+"万</div><div>"+monthtask+"万</div><div class=\"green\">"+monthPercent+"</div></div>";
+                        divs = divs+divEle;
+                    }
+                    var totalMonthPercent = (totalAmount*100/totalMonthtask).toFixed(2);
+                    divs +=  "<div class=\"left-table-item flex-row\"><div>总计</div> <div>"+(totalAmount/10000).toFixed(2)+"万</div><div>"+(totalMonthtask/10000).toFixed(2)+"万</div><div class=\"green\">"+totalMonthPercent+"</div></div>";
+                    $("#div-top4").html(divs);
+                }
+            }
+        });
+    }
+
+    var ruchuMaxHeight=0;
+    var absoluteTop = 0;
+
+    var tTout = "";
+    /*
+     * 最新出入库
+     */
+    function renderRuchu(){
+        $.ajax({
+            url: "/wmsRuchuday",
+            type: "GET",
+            timeout : 15000,
+            success: function (result) {
+                absoluteTop = 0;
+                var data = result.data;
+                if(null!=data&&data.length>0){
+                    var divs = "";
+                    for(var ruchuIndex=0;ruchuIndex<data.length;ruchuIndex++){
+                        var lxCls = data[ruchuIndex].lx=="出库"?"matter-action yellow":"matter-action green";
+                        var divEle = " <div class=\"center-table2-item flex-row\" ><div class=\"matter-code\">"+data[ruchuIndex].fnumber+"</div>"+
+                            "<div class=\"matter-name\">"+data[ruchuIndex].fname+"</div>"+
+                            "<div class=\""+lxCls+"\">"+data[ruchuIndex].lx+"</div>"+
+                            "<div class=\"matter-num\">"+data[ruchuIndex].fqty+"</div> </div> ";
+                        divs += divEle;
+                    }
+                    $("#div-ruchu").html(divs);
+                    ruchuMaxHeight = parseInt($("#div-ruchu").height())-300;
+                    $("#div-ruchu").css("top","0px");
+                    if(""!=tTout){
+                        clearTimeout(tTout);
+                    }
+                    scrollRuchu();
+                }
+            }
+        });
+    }
+
+    function scrollRuchu(){
+        absoluteTop = absoluteTop -1;
+        if(absoluteTop<0-ruchuMaxHeight){
+            absoluteTop=0;
+        }
+        $("#div-ruchu").css("top",absoluteTop+"px");
+        tTout = setTimeout("scrollRuchu()",200);
+    }
+
+
+    /*
+     * 各车间日生产入库数
+     */
+    function renderWorkshop(){
+        $.ajax({
+            url: "/wmsdayproduct",
+            type: "GET",
+            timeout : 15000,
+            success: function (result) {
+                var dataArr = result.data;
+                var data = new Array();
+                var yData = new Array();
+                if(null!=dataArr&&dataArr.length>0){
+                    for(var i=0;i<dataArr.length;i++){
+                        data.push(dataArr[i].fqty);
+                        yData.push(dataArr[i].fname);
+                    }
+                }
+                var option = {
+                    color: ['#167FE5'],
+                    title: {
+                        text: '车间日产量',
+                        subtext: '数据来自网络',
+                        show: false
+                    },
+                    tooltip: {
+                        trigger: 'axis',
+                        axisPointer: {
+                            type: 'shadow'
+                        },
+                        show: false
+                    },
+                    legend: {
+                        data: ['2011年', '2012年'],
+                        show: false
+                    },
+                    grid: {
+                        left: '3%',
+                        right: '4%',
+                        bottom: '3%',
+                        containLabel: true
+                    },
+                    xAxis: {
+                        type: 'value',
+                        boundaryGap: [0, 0.01],
+                        axisLine: {show: false},
+                        splitLine: {
+                            show: true,
+                            lineStyle: {
+                                color: 'rgba(101, 124, 168, .1)'
+                            }
+                        },
+                    },
+
+                    yAxis: {
+                        type: 'category',
+                        data: yData,
+                        axisLine: {show: false},
+                        splitLine: {
+                            show: false
+                        }
+                    },
+                    textStyle: {
+                        color: '#AFCFF8'
+                    },
+                    series: [
+                        {
+                            name: '2011年',
+                            type: 'bar',
+                            data: data,
+                            barWidth: 15
+                        },
+                    ]
+                };
+                var myChart = echarts.init(document.getElementById("echarts-right"));
+                myChart.setOption(option);
+            }
+        });
+    }
+
+    /*
+     * 左下角产品分类库存图
+     */
+    function renderFootleft() {
+        var lineMax = new Array();
+        var lineMin = new Array();
+        var data = new Array();
+        var xList = new Array();
+        $.ajax({
+            url: "/wmswarterlevel",
+            type: "GET",
+            timeout : 15000,
+            success: function (result) {
+                var dataArr = result.data;
+                if(null!=dataArr&&dataArr.length>0){
+                    for(var i=0;i<dataArr.length;i++){
+                        lineMax.push(dataArr[i].max);
+                        lineMin.push(dataArr[i].min);
+                        data.push(dataArr[i].now);
+                        xList.push(dataArr[i].pname);
+                    }
+                }
+                var option = {
+                    grid: {
+                        left: '3%',
+                        right: '4%',
+                        bottom: '3%',
+                        containLabel: true
+                    },
+                    textStyle: {
+                        color: '#AFCFF8'
+                    },
+                    xAxis : [
+                        {
+                            type : 'category',
+                            data : xList,
+                            axisLabel: {
+                                alignWithLabel: true,
+                                interval: 0,
+                                textStyle: {fontSize:10},
+                                rotate: 15,
+                            },
+
+                            axisLine: {
+                                lineStyle: {
+                                    color: 'rgba(101, 124, 168, .3)'
+                                },
+                            },
+                            splitLine: {
+                                show: true,
+                                lineStyle: {
+                                    color: 'rgba(101, 124, 168, .3)'
+                                }
+                            },
+                        }
+                    ],
+                    yAxis : [
+                        {
+                            type : 'value',
+                            axisLine: {
+                                lineStyle: {
+                                    color: 'rgba(101, 124, 168, .3)'
+                                },
+                            },
+                            splitLine: {
+                                show: true,
+                                lineStyle: {
+                                    color: 'rgba(101, 124, 168, .3)'
+                                }
+                            },
+                        }
+                    ],
+                    series : [
+                        {
+                            name: '最低库存',
+                            data: lineMin,
+                            type: 'line',
+                            symbol: 'none',
+                            smooth: true,
+                            color: 'rgba(103,194,58,.5)',
+                            areaStyle: {
+                                normal: {
+                                    color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                                        offset: 0,
+                                        color: 'rgba(103,194,58,.3)'
+                                    }, {
+                                        offset: 1,
+                                        color: 'rgba(103,194,58,0)'
+                                    }])
+                                }
+                            },
+                        },
+                        {
+                            name:'实际库存',
+                            type:'bar',
+                            barWidth: '20',
+                            stack: '库存',
+                            data:data,
+                            color: '#228FFE'
+                        },
+                        {
+                            name: '最高库存',
+                            data: lineMax,
+                            type: 'line',
+                            symbol: 'none',
+                            smooth: true,
+                            color: 'rgba(255,0,0,.5)',
+                            areaStyle: {
+                                normal: {
+                                    color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                                        offset: 0,
+                                        color: 'rgba(255,0,0,.3)'
+                                    }, {
+                                        offset: 1,
+                                        color: 'rgba(255,0,0,0)'
+                                    }])
+                                }
+                            },
+                        }
+                    ]
+                };
+                var myChart = echarts.init(document.getElementById("echarts-foot-left"));
+                myChart.setOption(option);
+            }
+        });
+
+    }
+
+    /*
+     * 右下角 各销售部日达成率 (近10天)
+     */
+    function renderFootright(){
+        $.ajax({
+            url: "/wmsdaytrend",
+            type: "GET",
+            timeout : 15000,
+            success: function (result) {
+                var dataArr = result.data;
+                if(null!=dataArr&&dataArr.length>0){
+                    var colors = ['#409eff','#67c23a','#e6a23c','#f56c6c','#3BEFFF'];
+                    var xData = new Array();
+                    for (var i = -9; i < 1 ; i++) {
+                        xData.push(getDate(i));
+                    }
+                    xData.unshift('');
+                    xData.push('');
+                    var nameContainer = {}; // 针对键code进行归类的容器
+                    for(var i=0;i<dataArr.length;i++){
+                        nameContainer[dataArr[i].fname] = nameContainer[dataArr[i].fname] || [];
+                        nameContainer[dataArr[i].fname].push(dataArr[i]);
+                    }
+                    var arrWrap = [];
+                    for(var key in nameContainer){
+                        arrWrap.push(nameContainer[key]);
+                    }
+                    var data = new Array();
+                    for(var k=0;k<arrWrap.length;k++) {
+                        data.push({
+                            type: 'bar',
+                            symbol: 'none',
+                            smooth: true,
+                            color: '',
+                            name: arrWrap[k][0].fname,
+                            icon: 'rect',
+                            data: ['', '', '', '', '', '', '', '', '', ''],
+                            data_: arrWrap[k]
+                        });
+                    }
+                    var month_ = '';
+                    var day_ = '';
+                    for(var m=0;m<data.length;m++) {
+                        for( var n=0;n< data[m].data_.length;n++) {
+                            for( i=0;i<xData.length;i++) {
+                                month_ = data[m].data_[n].month>9?data[m].data_[n].month:'0'+data[m].data_[n].month;
+                                day_ = data[m].data_[n].day>9?data[m].data_[n].day:'0'+data[m].data_[n].day;
+                                if((month_+'-'+day_)==xData[i]) {
+                                    data[m].data[i] = data[m].data_[n].rate*100;
+                                }
+                            }
+                        }
+                    }
+                    for(var i=0;i<data.length;i++) {
+                        data[i].color = colors[i];
+                    }
+
+                    var arr = new Array(13);
+                    for(var i=0;i<arr.length;i++) {
+                        arr[i] = 100;
+                    }
+                    var seriesData = new Array();
+                    seriesData.push.apply(seriesData,data);
+                    seriesData.push({
+                        name: '指标',
+                        data: arr,
+                        type: 'line',
+                        symbol: 'none',
+                        smooth: true,
+                        color: 'rgba(255,0,0,.5)',
+                        areaStyle: {
+                            normal: {
+                                color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                                    offset: 0,
+                                    color: 'rgba(255,0,0,.3)'
+                                }, {
+                                    offset: 1,
+                                    color: 'rgba(255,0,0,0)'
+                                }])
+                            }
+                        },
+                    });
+                    var option = {
+                        grid: {
+                            left: '3%',
+                            right: '4%',
+                            bottom: '3%',
+                            containLabel: true
+                        },
+
+                        textStyle: {
+                            color: '#AFCFF8'
+                        },
+                        legend: {
+                            data: data,
+                            right: 30,
+                            top: 10,
+                            textStyle: {color:'#C3CAD9'}
+                        },
+
+                        xAxis: {
+                            type: 'category',
+                            data: xData,
+                            axisLine: {
+                                lineStyle: {
+                                    color: 'rgba(101, 124, 168, .3)'
+                                },
+                            },
+                            boundaryGap: false,
+                            splitLine: {
+                                show: true,
+                                lineStyle: {
+                                    color: 'rgba(101, 124, 168, .3)'
+                                }
+                            },
+
+                        },
+
+                        yAxis: {
+                            type: 'value',
+                            axisLine: {
+                                lineStyle: {
+                                    color: 'rgba(101, 124, 168, .3)'
+                                },
+                            },
+                            splitLine: {
+                                show: true,
+                                lineStyle: {
+                                    color: 'rgba(101, 124, 168, .3)'
+                                }
+                            },
+                            axisLabel: {
+                                show: true,
+                                interval: 'auto',
+                                formatter: '{value} %'
+                            },
+
+                        },
+                        series: seriesData
+                    };
+
+                    var myChart = echarts.init(document.getElementById("echarts-foot-right"));
+                    myChart.setOption(option);
+                }
+            }
+        });
+    }
+
+    function getDate(day){
+        var today = new Date();
+        var targetday_milliseconds=today.getTime() + 1000*60*60*24*day;
+        today.setTime(targetday_milliseconds); //注意，这行是关键代码
+        var tMonth = today.getMonth();
+        var tDate = today.getDate();
+        tMonth = doHandleMonth(tMonth + 1);
+        tDate = doHandleMonth(tDate);
+        return tMonth+"-"+tDate;
+    }
+    function doHandleMonth(month){
+        var m = month;
+        if(month.toString().length == 1){
+            m = "0" + month;
+        }
+        return m;
+    }
+
+    /*
+     * 计时器
+     */
+    function timer(){
+        var date = new Date();
+        var year = date.getFullYear();
+        var month = date.getMonth() + 1;
+        if(month<10){
+            month = "0"+month;
+        }
+        var day = date.getDate();
+        if(day<10){
+            day = "0"+day;
+        }
+        var hour = date.getHours();
+        if(hour<10){
+            hour = "0"+hour;
+        }
+        var minutes = date.getMinutes();
+        if(minutes<10){
+            minutes = "0"+minutes;
+        }
+        var second = date.getSeconds();
+        if(second<10){
+            second = "0"+second;
+        }
+        $("#d-date").text(year+"-"+month+"-"+day+" "+hour+":"+minutes+":"+second);
+    }
+
+</script>
+</body>
+</html>

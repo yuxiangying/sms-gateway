@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="zh-cmn-Hans" xmlns:th="http://www.thymeleaf.org" >
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+    <meta name="description" content=""/>
+    <meta name="author" content=""/>
+    <link rel="icon" href="../../favicon.ico"/>
+    <script src="/layer/jquery-3.4.1.min.js"></script>
+    <title>进度登记</title>
+    <style>
+        body{
+            font-size:14px;
+        }
+        .d-bulk{
+            margin-top:20px;
+        }
+        .d-title{
+            font-size:16px;
+        }
+        .b-font{
+            background-color: #003654;
+            color:white;
+        }
+        .d-content{
+            margin-top:10px;
+        }
+        .d-line{
+            margin-bottom:5px;
+        }
+
+        input,select{
+            outline-style: none;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            padding: 3px 3px;
+            width: 300px;
+            font-size: 14px;
+            font-weight: 700;
+            font-family: "Microsoft soft";
+        }
+
+        .s-wid{
+            width:308px;
+        }
+
+        .ele-right{
+            margin-left:20px;
+        }
+        .ele-l{
+            width:120px;
+            display: inline-block;
+            text-align: right;
+        }
+        .button1 {
+            -webkit-transition-duration: 0.4s;
+            transition-duration: 0.4s;
+            padding: 3px 12px;
+            text-align: center;
+            background-color: white;
+            color: black;
+            border: 2px solid #4CAF50;
+            border-radius:5px;
+        }
+
+        .button1:hover {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .btn-margin{
+            margin-right:10px;
+        }
+
+        .d-btn{
+            width:1000px;
+            padding-top:30px;
+            padding-bottom:10px;
+            border-top:1px dotted #785;
+            border-bottom:1px solid #aaa;
+            text-align: center;
+        }
+
+    </style>
+</head>
+
+<body>
+<div class="d-bulk">
+    <div class="d-title"><span class="b-font">§ 项目信息</span></div>
+    <div class="d-content">
+        <div class="d-line">
+            <div ><label class="ele-l">项目编号:</label><input type="text" id="code" th:value="${code}" disabled="disabled" />
+                <label class="ele-l">项目下达时间:</label><input type="date" id="start_time" th:value="${startTime}" disabled="disabled" /></div>
+        </div>
+        <div class="d-line">
+            <div ><label class="ele-l">项目名称:</label><input type="text" id="name" th:value="${name}" disabled="disabled"/>
+                <label class="ele-l">要求完成时间:</label><input type="date" id="end_time" th:value="${endTime}" disabled="disabled"/></div>
+        </div>
+        <div class="d-line">
+            <div ><label class="ele-l" >型号:</label><input type="text" id="model" th:value="${model}" disabled="disabled"/>
+             <label class="ele-l">关注度:</label><select name="concern_level" id="concern_level" class="s-wid" th:value="${concernLevel}" disabled="disabled">
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+            </select></div>
+        </div>
+        <div class="d-line"><label class="ele-l" >项目负责人:</label><input type="text" id="charge_man" th:value="${chargeMan}" disabled="disabled" /></div>
+        <div class="d-line"><label class="ele-l">项目组成员:</label><input type="text" id="members" th:value="${members}" disabled="disabled" style="width:1000px;"/></div>
+    </div>
+</div>
+
+<div class="d-bulk">
+    <div class="d-title"><span class="b-font">§ 项目进程方案</span></div>
+    <div class="d-content">
+        <div> <label class="ele-l">预计完成时间:</label><input type="date" id="scheme_time" th:value="${schemeTime}" disabled="disabled"/>
+           <label class="ele-l">节点负责人:</label><input type="text" id="scheme_man" th:value="${schemeMan}" disabled="disabled"/></div>
+    </div>
+    <div class="d-content">
+        <div > <label class="ele-l">实际完成时间:</label><input type="date" id="scheme_real_time" th:value="${schemeRealTime}" /> </div>
+    </div>
+    <div class="d-content">
+        <div > <label class="ele-l">进度说明:</label><textarea rows="5" cols="120" id="scheme_progress" th:text="${schemeProgress}"> </textarea> </div>
+    </div>
+</div>
+<div class="d-bulk">
+    <div class="d-title"><span class="b-font">§ 手板/开模</span></div>
+    <div class="d-content">
+        <div> <label class="ele-l">预计完成时间:</label><input type="date" id="phone_time" th:value="${phoneTime}" disabled="disabled"/>
+           <label class="ele-l">节点负责人:</label><input type="text" id="phone_man" th:value="${phoneMan}" disabled="disabled"/></div>
+    </div>
+    <div class="d-content">
+        <div > <label class="ele-l">实际完成时间:</label><input type="date" id="phone_real_time" th:value="${phoneRealTime}" /> </div>
+    </div>
+    <div class="d-content">
+        <div > <label class="ele-l">进度说明:</label><textarea rows="5" cols="120" id="phone_progress" th:text="${phoneProgress}"> </textarea></div>
+    </div>
+</div>
+<div class="d-bulk">
+    <div class="d-title"><span class="b-font">§ 样机</span></div>
+    <div class="d-content">
+        <div > <label class="ele-l">预计完成时间:</label><input type="date" id="prototype_time" th:value="${prototypeTime}" disabled="disabled"/>
+             <label class="ele-l">节点负责人:</label><input type="text" id="prototype_man" th:value="${prototypeMan}" disabled="disabled"/></div>
+    </div>
+    <div class="d-content">
+        <div> <label class="ele-l">实际完成时间:</label><input type="date" id="prototype_real_time" th:value="${prototypeRealTime}" /> </div>
+    </div>
+    <div class="d-content">
+        <div> <label class="ele-l">进度说明:</label> <textarea rows="5" cols="120" id="prototype_progress" th:text="${prototypeProgress}"> </textarea></div>
+    </div>
+</div>
+<div class="d-bulk">
+    <div class="d-title"><span class="b-font">§ 测试</span></div>
+    <div class="d-content">
+        <div class="f-left"> <label class="ele-l">预计完成时间:</label><input type="date" id="test_time" th:value="${testTime}" disabled="disabled" />
+           <label class="ele-l">节点负责人:</label><input type="text" id="test_man" th:value="${testMan}" disabled="disabled"/></div>
+    </div>
+    <div class="d-content">
+        <div class="d-block"> <label class="ele-l">实际完成时间:</label><input type="date" id="test_real_time" th:value="${testRealTime}" /> </div>
+    </div>
+    <div class="d-content">
+        <div class="d-block"> <label class="ele-l">进度说明:</label><textarea rows="5" cols="120" id="test_progress" th:text="${testProgress}"> </textarea> </div>
+    </div>
+</div>
+<div class="d-bulk">
+    <div class="d-title"><span class="b-font">§ 资料发布</span></div>
+    <div class="d-content">
+        <div> <label class="ele-l">预计完成时间:</label><input type="date" id="publish_time" th:value="${publishTime}" disabled="disabled" />
+           <label class="ele-l">节点负责人:</label><input type="text" id="publish_man" th:value="${publishMan}" disabled="disabled"/></div>
+    </div>
+    <div class="d-content">
+        <div> <label class="ele-l">实际完成时间:</label><input type="date" id="publish_real_time" th:value="${publishRealTime}"/> </div>
+    </div>
+    <div class="d-content">
+        <div> <label class="ele-l">进度说明:</label> <textarea rows="5" cols="120" id="publish_progress" th:text="${publishProgress}"> </textarea></div>
+    </div>
+</div>
+
+<div class="d-bulk d-btn">
+    <button class="button1 btn-margin" id="b-submit">保存</button>
+    <button class="button1 btn-margin" id="b-cancel">返回</button>
+</div>
+
+<script>
+    $(function() {
+        var concernLevel = $("#concern_level").attr("value");
+        $("#concern_level").find("option[value='"+concernLevel+"']").attr("selected",true);
+
+        $("#b-submit").click(function(){
+            // 校验参数
+            var code = $("#code").val();
+
+            var schemeRealTime = $("#scheme_real_time").val();
+            var schemeProgress = $("#scheme_progress").val();
+            var phoneRealTime = $("#phone_real_time").val();
+            var phoneProgress = $("#phone_progress").val();
+            var prototypeRealTime = $("#prototype_real_time").val();
+            var prototypeProgress = $("#prototype_progress").val();
+            var testRealTime = $("#test_real_time").val();
+            var testProgress = $("#test_progress").val();
+            var publishRealTime = $("#publish_real_time").val();
+            var publishProgress = $("#publish_progress").val();
+
+            var param = {code:code,schemeRealTime:schemeRealTime,schemeProgress:schemeProgress,phoneRealTime:phoneRealTime,phoneProgress:phoneProgress, prototypeRealTime:prototypeRealTime,
+                prototypeProgress:prototypeProgress,testRealTime:testRealTime,testProgress:testProgress,publishRealTime:publishRealTime,publishProgress:publishProgress};
+            $.ajax({
+                url: "/pro/item/registerProgress",
+                data: param,
+                type: "POST",
+                success: function (result) {
+                    if(result.code=="0001"){
+                        alert(result.message);
+                    } else if(result.code=="0000"){
+                        alert("登记成功!");
+                        window.location.href = "/pro/item";
+                    }
+                }
+            });
+        });
+
+        $("#b-cancel").click(function () {
+            window.location.href = "/pro/item";
+        });
+
+    });
+</script>
+
+</body>
+</html>

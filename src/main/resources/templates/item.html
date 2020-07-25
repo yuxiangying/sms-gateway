@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="zh-cmn-Hans" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+    <meta name="description" content=""/>
+    <meta name="author" content=""/>
+    <link rel="icon" href="../../favicon.ico"/>
+
+    <title>项目管理</title>
+    <script src="/layer/jquery-3.4.1.min.js"></script>
+</head>
+
+<body>
+<style>
+    body{
+        font-size:15px;
+    }
+    .container-fluid {
+        padding-right: 15px;
+        padding-left: 15px;
+        margin-right: auto;
+        margin-left: auto;
+    }
+    .navbar-inverse {
+        background-color: #003654;
+        height:40px;
+    }
+    .navbar-inverse .navbar-brand {
+        color: #9d9d9d;
+    }
+    .navbar-brand {
+        float: left;
+        height: 40px;
+        padding: 10px 10px;
+        font-size: 16px;
+        line-height: 20px;
+    }
+    .navbar-logout {
+        float: right;
+        height: 40px;
+        padding: 10px 10px;
+        font-size: 16px;
+        line-height: 20px;
+        color: #9d9d9d;
+    }
+    .width-mod {
+        width: 70px;
+    }
+
+    .in-wid{
+        width: 150px;
+    }
+    .in-wid-sel{
+        width: 158px;
+    }
+
+    input,select{
+        vertical-align:middle;
+        outline-style: none;
+        border: 1px solid #ccc;
+        border-radius: 3px;
+        padding: 3px 3px;
+        font-size: 15px;
+        font-weight: 700;
+        font-family: "Microsoft soft";
+    }
+
+    .button1 {
+        -webkit-transition-duration: 0.4s;
+        transition-duration: 0.4s;
+        padding: 3px 12px;
+        text-align: center;
+        background-color: white;
+        color: black;
+        border: 2px solid #4CAF50;
+        border-radius:5px;
+    }
+
+    .button1:hover {
+        background-color: #4CAF50;
+        color: white;
+    }
+
+    .btn-margin{
+        margin-left: 50px;
+        width: 80px;
+    }
+
+    .item-margin{
+        margin-left: 5px;
+        font-size:14px;
+    }
+
+    .ele-l{
+        width:120px;
+        display: inline-block;
+        text-align: right;
+    }
+
+    .loading-tip {
+        z-index: 10002;
+        position: fixed;
+        display: none;
+    }
+
+    .loading-tip img {
+        width: 100px;
+        height: 100px;
+    }
+
+    table{
+        border-collapse: collapse;
+        table-layout: fixed;
+        width:100px;
+        border-top:1px solid #1b75ff;
+        font-size:14px;
+    }
+
+    .t-head{
+        padding-top:10px;
+    }
+
+    th,td{
+        width:100%;
+        word-break:keep-all;
+        overflow: hidden;
+        white-space:nowrap;
+        text-overflow: ellipsis;
+        border:1px solid #ccc;
+        padding-left:3px;
+    }
+
+    .td-cen{
+        text-align:center;
+    }
+
+    .main {
+        padding-right: 40px;
+        padding-left: 40px;
+        padding: 20px;
+    }
+
+</style>
+<div class="container-fluid navbar-inverse">
+    <a class="navbar-brand" href="#">项目管理</a>
+    <a class="navbar-logout" href="/logout">退出</a>
+    <a class="navbar-logout" href="/led">大屏展示</a>
+</div>
+
+<div class="container-fluid">
+
+    <div class="row">
+
+        <div class="main">
+            <div class="" style="overflow-x:hidden">
+                <div class="row">
+                    <label class="ele-l">项目编号:</label> <input type="text" id="sea_code" class="in-wid"/>   <label class="ele-l">项目名称:</label> <input type="text" id="sea_name" class="in-wid"/>
+                    <label class="ele-l">任务下达日期:</label> <input type="date" id="sea_start_time_begin" class="in-wid"/> <span>-</span> <input type="date" id="sea_start_time_end" class="in-wid"/>  <input type="button" id="search" class="button1 btn-margin" value="查询"/>
+                </div>
+                <div class="row"><label class="ele-l"></label></div>
+                <div class="row">
+                    <label class="ele-l">状态:</label> <select id="sea_status" class="in-wid-sel">
+                    <option value="-100">所有</option>
+                    <option value="1">进行中</option>
+                    <option value="0">暂停</option>
+                    <option value="-1">取消</option>
+                    <option value="2">已完成</option>
+                    </select>   <label class="ele-l">项目负责人:</label> <input type="text" id="sea_charge_man" class="in-wid"/>
+                    <label class="ele-l">要求完成日期:</label> <input type="date" id="sea_end_time_begin" class="in-wid"/> <span>-</span> <input type="date" id="sea_end_time_end" class="in-wid"/>
+                    <input type="button" id="add" class="button1 btn-margin" value="新增项目"/>
+                </div>
+                <div class="row"><label class="ele-l"></label></div>
+                <table >
+                    <thead>
+                    <tr >
+                        <th style="width:30px;" class="t-head">序号</th>
+                        <th style="width:70px;" class="t-head">项目编号</th>
+                        <th style="width:100px;" class="t-head">项目名称</th>
+                        <th style="width:60px;" class="t-head">产品型号</th>
+                        <th style="width:80px;" class="t-head">项目责任人</th>
+                        <th style="width:90px;" class="t-head">项目下达</th>
+                        <th style="width:90px;" class="t-head">要求完成</th>
+                        <th style="width:80px;" class="t-head">当前节点</th>
+                        <th style="width:300px;" class="t-head">最新进度说明</th>
+                        <th style="width:250px;" class="t-head">操作</th>
+                    </tr>
+                    </thead>
+                    <tbody id="t-data">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var statusArray = {
+        "-1":"取消",
+        "0":"暂停",
+        "1":"进行中",
+        "2":"已完成"
+    };
+    $(function () {
+        renderList();
+        $("#add").click(function () {
+            window.location.href="/pro/item/add_new";
+        });
+
+        $("#search").click(function(){
+            var code = $("#sea_code").val();
+            var name = $("#sea_name").val();
+            var startTimeBegin = $("#sea_start_time_begin").val();
+            var startTimeEnd = $("#sea_start_time_end").val();
+            var status = $("#sea_status option:selected").val();
+            var chargeMan = $("#sea_charge_man").val();
+            var endTimeBegin = $("#sea_end_time_begin").val();
+            var endTimeEnd = $("#sea_end_time_end").val();
+
+            $.ajax({
+                url: "/pro/item/search",
+                data: {code:code,name:name,startTimeBegin:startTimeBegin,startTimeEnd:startTimeEnd,status:status,chargeMan:chargeMan,endTimeBegin:endTimeBegin,endTimeEnd:endTimeEnd},
+                type: "POST",
+                success: function (result) {
+                    if(result==null||result.length==0){
+                        $("#t-data").html("<tr><td colspan='10'>查询无数据!</td></tr>");
+                    } else{
+                        var trs="";
+                        var codes = "";
+                        for(var i=0;i<result.length;i++){
+                            var curNode = getCurrentNode(result[i].status,result[i].schemeRealTime,result[i].phoneRealTime,result[i].prototypeRealTime,result[i].testRealTime,result[i].publishRealTime);
+                            var tr = "<tr><td>"+(i+1)+"</td><td name=\"code\">"+result[i].code+"</td> <td>"+result[i].name+"</td>" +
+                                "<td>"+result[i].model+"</td><td>"+result[i].chargeMan+"</td><td>"+result[i].startTime+"</td><td>"+result[i].endTime + "</td><td>" + curNode
+                                + "</td><td name=\"progress\"></td>" +
+                                "<td class=\"td-cen\"> <input type=\"button\" value=\"登记\" class=\"button1 item-margin\" name=\"register\" onclick=\"registerItem(this)\"/><input type=\"button\" value=\"变更\" class=\"button1 item-margin\" name=\"change\" onclick=\"changeItem(this)\"/>" +
+                                "<input type=\"button\" value=\"取消\" class=\"button1 item-margin\" name=\"cancel\" onclick=\"cancelItem(this)\"/><input type=\"button\" value=\"历史\" class=\"button1 item-margin\" name=\"history\" onclick=\"historyItem(this)\"/></td></tr>";
+                            trs += tr;
+                            codes += result[i].code + ",";
+                        }
+                        $("#t-data").html(trs);
+                        renderProgress(codes.substr(0,codes.length-1));
+                    }
+                }
+            });
+
+        });
+    });
+
+    function renderList(){
+        $.ajax({
+            url: "/pro/item/list",
+            type: "GET",
+            success: function (result) {
+                if(null!=result) {
+                    var trs="";
+                    var codes = "";
+                    for(var i=0;i<result.length;i++){
+                        var curNode = getCurrentNode(result[i].status,result[i].schemeRealTime,result[i].phoneRealTime,result[i].prototypeRealTime,result[i].testRealTime,result[i].publishRealTime);
+                        var tr = "<tr status=\""+result[i].status+"\"><td>"+(i+1)+"</td><td name=\"code\">"+result[i].code+"</td> <td>"+result[i].name+"</td>" +
+                            "<td>"+result[i].model+"</td><td>"+result[i].chargeMan+"</td><td>"+result[i].startTime+"</td><td>"+result[i].endTime + "</td><td>" + curNode +
+                            "</td><td name=\"progress\"></td>" +
+                            "<td class=\"td-cen\"> <input type=\"button\" value=\"登记\" class=\"button1 item-margin\" name=\"register\" onclick=\"registerItem(this)\"/><input type=\"button\" value=\"变更\" class=\"button1 item-margin\" name=\"change\" onclick=\"changeItem(this)\"/>" +
+                            "<input type=\"button\" value=\"取消\" class=\"button1 item-margin\" name=\"cancel\" onclick=\"cancelItem(this)\"/><input type=\"button\" value=\"历史\" class=\"button1 item-margin\" name=\"history\" onclick=\"historyItem(this)\"/></td></tr>";
+                        trs += tr;
+                        codes += result[i].code + ",";
+                    }
+                    $("#t-data").html(trs);
+                    renderProgress(codes.substr(0,codes.length-1));
+                }
+
+            }
+        });
+    }
+
+   /*
+    * 根据各节点实际完成时间获取当前节点
+    */
+    function getCurrentNode(status,schemeRealTime,phoneRealTime,prototypeRealTime,testRealTime,publishRealTime){
+        if(0==status){
+            return "暂停";
+        }
+        if(-1==status){
+            return "取消";
+        }
+        if(2==status){
+            return "已完成";
+        }
+        if("1970-01-01"==schemeRealTime){
+            return "方案阶段";
+        }else if("1970-01-01"==phoneRealTime){
+            return "手板/开模阶段";
+        }else if("1970-01-01"==prototypeRealTime){
+            return "样机阶段";
+        }else if("1970-01-01"==testRealTime){
+            return "测试阶段";
+        }else if("1970-01-01"==publishRealTime){
+            return "发布阶段";
+        }
+    }
+
+    function renderProgress(codes){
+        $.ajax({
+            url: "/pro/item/renderProgress",
+            data: {
+                codes: codes
+            },
+            type: "POST",
+            success: function (result) {
+                 $("#t-data").children("tr").each(function(){
+                    var code = $(this).children("td[name='code']").text();
+                    $(this).children("td[name='progress']").text("" + result[code] + "");
+                });
+            }
+        });
+    }
+
+    function registerItem(src){
+        var code = $(src).parent().parent().children("td[name='code']").text();
+        window.location.href="/pro/item/register?code="+code;
+    }
+
+    function changeItem(src){
+        var status = parseInt($(src).parent().parent().attr("status"));
+        if(-1==status||2==status){
+            return;
+        }
+        var code = $(src).parent().parent().children("td[name='code']").text();
+        window.location.href="/pro/item/change?code="+code;
+    }
+
+    function cancelItem(src){
+        var status = parseInt($(src).parent().parent().attr("status"));
+        if(2==status){
+            return;
+        }
+        var cancelReason = prompt("取消原因(必填)","");
+        if(cancelReason){
+            var code = $(src).parent().parent().children("td[name='code']").text();
+            $.ajax({
+                url: "/pro/item/updateStatus",
+                data: {code: code, status: -1, reason: cancelReason},
+                type: "POST",
+                success: function (result) {
+                    if (result.code == "0001") {
+                        alert(result.message);
+                    } else if (result.code == "0000") {
+                        alert("取消成功!");
+                        window.location.href = "/pro/item";
+                    }
+                }
+            });
+        }
+    }
+
+    function historyItem(src){
+        var code = $(src).parent().parent().children("td[name='code']").text();
+        window.location.href="/pro/item/history?code="+code;
+    }
+
+</script>
+
+</body>
+</html>

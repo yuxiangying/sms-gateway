@@ -1,0 +1,1276 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>生产数据监控</title>
+    <!--<link type="text/css" rel="styleSheet"  href="/css/left.css" />-->
+
+    <script src="/layer/jquery-3.4.1.min.js"></script>
+    <!-- 引入 echarts.js -->
+    <script src="/layer/echarts.min.js"></script>
+</head>
+<body>
+<style>
+    html, body{
+        margin:0px;
+        color: #afcff8;
+        /*height:100%;
+        width:100%;*/
+        background-color: #036;
+    }
+    .main-container{
+        background-color: #036;
+        /*height:100%;*/
+        width:100%;
+    }
+    .top{position:relative;margin-bottom:15px;height:88px;background:url(/img/tet.png) 50%/cover}
+    .top-date{position:absolute;bottom:13px;right:36px;font-size:24px;color:#6792f2}
+    .warehouse-content{height:53%;margin:0 30px 10px}
+    .flex-row{display:flex;}
+    .left{
+        width:33%;
+        margin-right:10px;
+    }
+    .center{
+        width:33%;
+        margin-right:10px;
+    }
+    .left-echarts{
+        margin-bottom:10px;
+        padding-top: 20px;
+    }
+    .border{
+        background: #0b2352;
+        border: 2px solid #005e91;
+        border-radius: 4px;
+    }
+    .flex-col{
+        -webkit-box-orient: vertical;
+        -webkit-box-direction: normal;
+        flex-flow: column;
+        display: flex;
+    }
+    .echarts-title{
+        -webkit-box-align:center;
+        align-items:center;
+        padding:5px 16px;
+        font-size:18px;
+    }
+    .flex-row{
+        display: flex;
+    }
+    .title-icon{
+        margin-right:22px;
+        width:8px;
+        height:8px;
+        background:#3a88ff;
+    }
+    #charts-statistics{
+        height: 379px;
+        justify-content:center;
+        flex-wrap:wrap;
+        align-items: center;
+        align-content: flex-start;
+    }
+    #charts-statistics > div{
+        height: 130px;
+        width: 42%;
+        /*color: #C3CAD9;*/
+        text-align: center;
+    }
+    #charts-statistics > div > p{
+        font-size: 20px;
+        /*font-weight: bold;*/
+    }
+    #charts-statistics > div:nth-child(1){
+        border: 0;
+        border-right:2px solid;
+        border-image: linear-gradient(to top, rgba(140, 255, 251, .4),rgba(140, 255, 251, .05))10;
+    }
+    #charts-statistics > div:nth-child(2){
+        border: 0;
+        margin-top: -2px;
+        border-bottom:2px solid;
+        border-image: linear-gradient(to right, rgba(140, 255, 251, .4),rgba(140, 255, 251, .05))10;
+    }
+    #charts-statistics > div:nth-child(3){
+        border: 0;
+        margin-top: -2px;
+        border-top:2px solid;
+        border-image: linear-gradient(to left, rgba(140, 255, 251, .4),rgba(140, 255, 251, .05))10;
+    }
+    #charts-statistics > div:nth-child(4){
+        border: 0;
+        margin-top: -5px;
+        border-left:2px solid;
+        border-image: linear-gradient(to bottom, rgba(140, 255, 251, .4),rgba(140, 255, 251, .05))10;
+    }
+    #charts-left,#charts-quality,#charts-complaint,#charts-capacity{
+        height:236px;
+        width:100%;
+        flex-grow:1;
+        -webkit-box-flex:1;
+    }
+    .demo_line_01 {
+        width: 70px;/*这指的是文字的宽度*/
+        padding: 0 20px 0;
+        margin: 20px auto;
+        margin-top: 12px;
+        line-height: 2px;
+        border-left: 200px solid rgba(101, 124, 168, .3);
+        border-right: 200px solid rgba(101, 124, 168, .3);
+        text-align: center;
+        color: rgba(101, 124, 168, .3);
+    }
+    .demo_line_left {
+        width: 2px;/*这指的是文字的宽度*/
+        position: absolute;
+        margin-left: 20px;
+        border-top: 225px solid rgba(101, 124, 168, .3);
+        border-bottom: 225px solid rgba(101, 124, 168, .3);
+        text-align: center;
+        color: rgba(101, 124, 168, .3);
+    }
+    .demo_line_left > span{
+        display: block;
+        height: 63px;
+        margin-left:-7px;
+    }
+</style>
+<div class="main-container" id="main-container">
+    <div class="top" data-v-0015f56e=""><div class="top-date" data-v-0015f56e="" id="d-date"></div></div>
+    <div class="warehouse-content flex-row" data-v-0015f56e="">
+        <div class="left">
+            <div class="left-echarts border flex-col">
+                <div class="echarts-title flex-row">
+                    <div class="title-icon"></div>
+                    <div>产值分析</div>
+                </div>
+                <div id="charts-left"></div>
+            </div>
+            <div class="left-echarts border flex-col">
+                <div class="echarts-title flex-row">
+                    <div class="title-icon"></div>
+                    <div>当月质量分析</div>
+                </div>
+                <div id="charts-quality">
+                </div>
+            </div>
+            <div class="left-echarts border flex-col">
+                <div class="echarts-title flex-row">
+                    <div class="title-icon"></div>
+                    <div>投诉分析</div>
+                </div>
+                <div id="charts-complaint" style="height: 300px">
+                </div>
+            </div>
+        </div>
+
+        <div class="center flex-col">
+            <div class="left-echarts border flex-col">
+                <div class="echarts-title flex-row">
+                    <div class="title-icon"></div>
+                    <div>五大能力</div>
+                </div>
+                <div style="height: 540px">
+                    <div class="demo_line_left"><span>达成率</span></div>
+                    <div id="charts-capacity" style="height: 450px;margin-top: 50px;">
+                    </div>
+                    <div class="demo_line_01">五大能力 </div>
+                </div>
+
+            </div>
+            <div class="left-echarts border flex-col">
+                <div id="charts-statistics" style="height: 300px;margin-top:33px;" class="flex-row">
+                    <!--当月盘点绝对值差异-->
+                    <div>
+                        <p style="margin-top: 25px;">当月盘点绝对值差异</p>
+                        <p id="statistics-absolute">0元</p>
+                    </div>
+                    <!--当月盘亏金额-->
+                    <div >
+                        <p style="margin-top: 25px;">当月盘亏金额</p>
+                        <p id="statistics-inventory">0元</p>
+                    </div>
+                    <!--本月投诉损失额-->
+                    <div >
+                        <p  style="margin-top: 25px;">本月投诉损失额</p>
+                        <p id="statistics-complaintMoneys">0元</p>
+                    </div>
+                    <!--本月投诉次数-->
+                    <div >
+                        <p  style="margin-top: 25px;">本月投诉次数</p>
+                        <p id="statistics-complaintNums">0元</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="center flex-col">
+            <div class="left-echarts border flex-col">
+                <div class="echarts-title flex-row">
+                    <div class="title-icon"></div>
+                    <div>月度订单分析</div>
+                </div>
+                <div id="charts-task" style="height: 236px">
+
+                </div>
+            </div>
+
+            <div class="left-echarts border flex-col">
+                <!--按月盘点金额分析-->
+                <div class="echarts-title flex-row">
+                    <div class="title-icon"></div>
+                    <div>盘点金额</div>
+                </div>
+                <div id="charts-checkMoneyDate" style="height: 300px">
+
+                </div>
+            </div>
+
+            <div class="left-echarts border flex-col">
+                <!--按部门盘点金额分析-->
+                <div class="echarts-title flex-row">
+                    <div class="title-icon"></div>
+                    <div>当月盘点情况</div>
+                </div>
+                <div id="charts-checkMoneyDept" style="height: 236px">
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    var sCapacityAnalysis;
+    var statistics;
+    var startDay = "1";//查询开始日期
+    var endDay = "31";//查询结束日期
+    var statisticsMonth = 6;//统计数据的月份
+    var statisticsCurrentMonth = 0;//生产效益看板数据当前月份
+    var productService ="http://192.168.40.132:8080";//生产效益看板服务地址
+    $(function () {
+        getProductMessage();
+        initGlobalVar();
+        renderOutputAnalysis();
+        renderQualityAnalysis();
+        renderComplaintAnalysis();
+        renderCapacityAnalysis();
+        renderStatistics();
+        renderTaskAnalysis();
+        renderCheckMoneyDateAnalysis();
+        renderCheckMoneyDeptAnalysis();
+        setInterval("initGlobalVar()",14400000);
+        setInterval("renderOutputAnalysis()",14400000);
+        setInterval("renderQualityAnalysis()",14400000);
+        setInterval("renderComplaintAnalysis()",14400000);
+        setInterval("renderCapacityAnalysis()",14400000);
+        setInterval("renderStatistics()",14400000);
+        setInterval("renderTaskAnalysis()",14400000);
+        setInterval("renderCheckMoneyDateAnalysis()",14400000);
+        setInterval("renderCheckMoneyDeptAnalysis()",14400000);
+    });
+
+    function getProductMessage() {
+        $.ajax({
+            url: "/product/productMessage",
+            type: "GET",
+            async: false,
+            timeout: 15000,
+            success: function (result) {
+                var data = result.data;
+                if (null != data) {
+                    productService = "http://"+data.url+":"+data.port;
+                }
+            }
+        });
+    }
+    function initGlobalVar() {
+        $.ajax({
+            url: productService+"/led/initGlobalVar",
+            type: "GET",
+            async: false,
+            timeout: 15000,
+            contentType: "application/x-www-form-urlencoded",
+            success: function (result) {
+                var map = result.data;
+                var nowTime = result.message;
+                setInterval("timer()",1000);
+                $("#d-date").text(nowTime);
+                if (null != map) {
+                    if (null != map.statisticsList && map.statisticsList.length > 0) {
+                        statistics = new Object();
+                        statistics = map.statisticsList[0];
+                    }
+                    if (null != map.sCapacityAnalysisList && map.sCapacityAnalysisList.length > 0) {
+                        sCapacityAnalysis = new Object();
+                        sCapacityAnalysis = map.sCapacityAnalysisList[0];
+                        if("statistics"==sCapacityAnalysis.sourceType){
+                            startDay = statistics.startDate;
+                            endDay = statistics.endDate;
+                        }
+                    }
+                    if(null!=map.statisticsMonth){
+                        statisticsMonth = parseInt(map.statisticsMonth);
+                    }
+                    if(null!=map.statisticsCurrentMonth){
+                        statisticsCurrentMonth = parseInt(map.statisticsCurrentMonth);
+                    }
+                }
+            }
+        });
+    }
+
+    /*
+     * 产值分析
+     */
+    function renderOutputAnalysis(){
+        $.ajax({
+            url: "/product/taskMonths",
+            data:{
+                "statisticsMonth":statisticsMonth,
+                "startDay":startDay,
+                "endDay":endDay
+            },
+            type: "GET",
+            timeout : 15000,
+            cache:false,
+            success: function (result) {
+               var option = {
+                   tooltip: {
+                   },
+                   legend: {
+                       data: ['产值', '生产单'],
+                       textStyle: {color:'#AFCFF8'}
+                   },
+                   textStyle: {
+                       color: '#AFCFF8'
+                   },
+                   grid: {
+                       top: 30
+                   },
+                   xAxis: {
+                       name:"年月",
+                       type: 'category',
+                       data: result.date,
+                       // boundaryGap: false,
+                       axisLine: {
+                           lineStyle: {
+                               color: 'rgba(101, 124, 168, .3)'
+                           },
+                       },
+                       splitLine: {
+                           show: false
+                       }
+                   },
+                   yAxis: {
+                       type: 'value',
+                       splitNumber: 2,
+                       axisLine: {
+                           lineStyle: {
+                               color: 'rgba(101, 124, 168, .3)'
+                           },
+                       },
+                       splitLine: {
+                           show: false
+                       }
+                   },
+                   series: [
+                       {
+                           type: 'line',
+                           name: '产值',
+                           data: result.amount,
+                           color: '#228FFE',
+                           symbol: "circle",      // 默认是空心圆（中间是白色的），改成实心圆
+                           symbolSize: 7,   //设定实心点的大小
+                           label: {
+                               show: true
+                           },
+                           color: '#228FFE',
+                           xAxisIndex: 0,
+                           yAxisIndex: 0,
+                           symbol: "circle",      // 默认是空心圆（中间是白色的），改成实心圆
+                           symbolSize: 7,   //设定实心点的大小
+                           label: {
+                               show: true,
+                               formatter: '{c}万元'
+                           },
+                           itemStyle:{
+                               color:'#228FFE',
+                               borderColor:'#AFCFF8',
+                               borderWidth:1.5
+                           }
+                       },
+                       {
+                           name: '生产单',
+                           type: 'line',
+                           data: result.task,
+                           symbol :"circle",
+                           symbolSize: 1,   //设定实心点的大小
+                           color: 'rgba(140,255,251,.4)',
+                           label: {
+                               show: true,
+                               formatter: '{c}单'
+                           },
+                           itemStyle:{
+                               borderWidth:0
+                           },
+                           areaStyle: {
+                               normal: {
+                                   color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                                       offset: 0,
+                                       color: 'rgba(140,255,251,.3)'
+                                   }, {
+                                       offset: 1,
+                                       color: 'rgba(140,255,251,.05)'
+                                   }])
+                               }
+                           }
+                       }
+                   ]
+                };
+                var myChart = echarts.init(document.getElementById("charts-left"));
+                myChart.setOption(option);
+            }
+        });
+    }
+
+    /*
+     * 当月质量分析
+     */
+    function renderQualityAnalysis(){
+        var onetimeRates = new Array();
+        var xList = new Array();
+        var arr = new Array();
+        $.ajax({
+            url: productService+"/led/monthQualityCharts",
+            data:{
+                "statisticsCurrentMonth":statisticsCurrentMonth
+            },
+            type: "GET",
+            timeout : 15000,
+            contentType: "application/x-www-form-urlencoded",
+            success: function (result) {
+                var dataArr = result.data;
+                if(null!=dataArr&&dataArr.length>0){
+                    for(var i=0;i<dataArr.length;i++){
+                        onetimeRates.push(dataArr[i].onetimeRate);
+                        xList.push(dataArr[i].lineName);
+                        arr[i] = 100;
+                    }
+                }
+                // 指定图表的配置项和数据
+                var option = {
+                    textStyle: {
+                        color: '#AFCFF8'
+                    },
+                    legend: {
+                        data: ['一次合格率'],
+                        textStyle: {
+                            color: '#AFCFF8'
+                        }
+                    },
+                    grid: {
+                        top: 30
+                    },
+                    tooltip: {},
+                    xAxis: {
+                        type: 'category',
+                        name: '产线',
+                        data: xList,
+                        axisLabel: {
+                            alignWithLabel: true,
+                            interval: 0,
+                            textStyle: {fontSize:10},
+                            formatter: function (value) {
+                                //x轴的文字改为竖版显示
+                                var str = value.split("");
+                                return str.join("\n");
+                            }
+                        },
+
+                        axisLine: {
+                            lineStyle: {
+                                color: 'rgba(101, 124, 168, .3)'
+                            },
+                        },
+                        splitLine: {
+                            show: false,
+                            lineStyle: {
+                                color: 'rgba(101, 124, 168, .3)'
+                            }
+                        },
+                    },
+                    yAxis: {
+                        type: 'value',
+                        // name: '一次合格率',
+                        splitNumber: 3,
+                        axisLabel: {
+                            formatter: '{value} %'
+                           /* formatter: function (value) {
+                                //y轴的文字+"%
+                                return value+"%";
+                            }*/
+                        },
+                        axisLine: {
+                            lineStyle: {
+                                color: 'rgba(101, 124, 168, .3)'
+                            },
+                        },
+                        splitLine: {
+                            show: false,
+                            lineStyle: {
+                                color: 'rgba(101, 124, 168, .3)'
+                            }
+                        },
+                    },
+                    series: [
+                        {
+                            name: '一次合格率',
+                            type: 'bar',
+                            data: onetimeRates,
+                            barWidth: '10',
+                            color: '#228FFE',
+                            label: {
+                                show: true,
+                                position: "top",
+                                formatter: function (value) {
+                                    //y轴的文字+"%
+                                    return value.data + "%";
+                                }
+                            }
+                        },
+                        {
+                            name: '指标',
+                            data: arr,
+                            type: 'line',
+                            symbol: 'none',
+                            smooth: true,
+                            color: 'rgba(255,0,0,.5)',
+                            areaStyle: {
+                                normal: {
+                                    color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                                        offset: 0,
+                                        color: 'rgba(255,0,0,.3)'
+                                    }, {
+                                        offset: 1,
+                                        color: 'rgba(255,0,0,0)'
+                                    }])
+                                }
+                            },
+                        }
+                    ]
+                };
+                var myChart = echarts.init(document.getElementById("charts-quality"));
+                myChart.setOption(option);
+            }
+        });
+    }
+
+
+    /*
+     * 投诉分析
+     */
+    function renderComplaintAnalysis(){
+        var complaintNums = new Array();
+        var complaintMoneys = new Array();
+        var xList = new Array();
+        var avgNums = new Array();
+        var avgMoneys = new Array();
+        var numSum = 0;
+        var moneySum = 0;
+        var avgNum = 0;
+        var avgMoney = 0;
+        $.ajax({
+            url: productService+"/led/complaintCharts",
+            data:{
+                "statisticsMonth":statisticsMonth,
+                "statisticsCurrentMonth":statisticsCurrentMonth
+            },
+            type: "GET",
+            timeout : 15000,
+            contentType: "application/x-www-form-urlencoded",
+            success: function (result) {
+                var dataArr = result.data;
+                if(null!=dataArr&&dataArr.length>0){
+                    for(var i=0;i<dataArr.length;i++){
+                        numSum += dataArr[i].complaintNum;
+                        moneySum += dataArr[i].complaintMoney;
+                    }
+                    avgNum = numSum/dataArr.length;
+                    avgMoney = moneySum/dataArr.length;
+
+                    for(var i=0;i<dataArr.length;i++){
+                        complaintNums.push(dataArr[i].complaintNum);
+                        complaintMoneys.push(dataArr[i].complaintMoney)
+                        xList.push(subDate(dataArr[i].complaintDate));
+                        avgNums.push(avgNum);
+                        avgMoneys.push(avgMoney);
+                    }
+                }
+                // 指定图表的配置项和数据
+                var option = {
+                    textStyle: {
+                        color: '#AFCFF8'
+                    },
+                    legend: {
+                        data: ['投诉次数', '投诉金额'],
+                        textStyle: {
+                            color: '#AFCFF8'
+                        }
+                    },
+                    grid: [
+                        {x: '12%', y: '7%', width: '80%', height: '38%'},
+                        {x: '12%',y:'45%', y2: '7%', width: '80%', height: '42%'}
+                    ],
+                    tooltip: {},
+                    xAxis: [
+                        {
+                            type: 'category',
+                            // data: xList,
+                            gridIndex:0,
+                            offset:20,
+                            axisLine: {
+                                lineStyle: {
+                                    color: 'rgba(101, 124, 168, .3)'
+                                }
+                            },
+                            splitLine: {
+                                show: false
+                            }
+                        },
+                        {
+                            type: 'category',
+                            name: '年月',
+                            data: xList,
+                            gridIndex:1,
+                            axisLine: {
+                                lineStyle: {
+                                    color: 'rgba(101, 124, 168, .3)'
+                                }
+                            },
+                            splitLine: {
+                                show: false
+                            }
+                        }
+                    ],
+                    yAxis: [
+                        {
+                            type: 'value',
+                            // name: '投诉次数',
+                            gridIndex:0,
+                            splitNumber: 2,
+                            nameGap: 10,
+                            axisLine: {
+                                lineStyle: {
+                                    color: 'rgba(101, 124, 168, .3)'
+                                }
+                            },
+                            splitLine: {
+                                show: false
+                            }
+                        },
+                        {
+                            type: 'value',
+                            // name: '投诉金额',
+                            gridIndex:1,
+                            splitNumber: 2,
+                            nameGap: 10,
+                            axisLine: {
+                                lineStyle: {
+                                    color: 'rgba(101, 124, 168, .3)'
+                                }
+                            },
+                            splitLine: {
+                                show: false
+                            }
+                        }
+                    ],
+                    series: [
+                        {
+                            type: 'line',
+                            name: '投诉次数',
+                            data: complaintNums,
+                            color: '#af586b',
+                            xAxisIndex: 0,
+                            yAxisIndex: 0,
+                            symbol: "circle",      // 默认是空心圆（中间是白色的），改成实心圆
+                            symbolSize: 7,   //设定实心点的大小
+                            label: {
+                                show: true
+                            },
+                            itemStyle:{
+                                color:'#af586b',
+                                borderColor:'#AFCFF8',
+                                borderWidth:1.5
+                            }
+                        },
+                        {
+                            type: 'line',
+                            data: avgNums,
+                            color: 'rgba(255,0,0,.5)',
+                            symbol: 'none',
+                            smooth: true,
+                            xAxisIndex: 0,
+                            yAxisIndex: 0,
+                        },
+                        {
+                            type: 'line',
+                            name: '投诉金额',
+                            data: complaintMoneys,
+                            color: '#f7a849',
+                            xAxisIndex: 1,
+                            yAxisIndex: 1,
+                            symbol: "circle",      // 默认是空心圆（中间是白色的），改成实心圆
+                            symbolSize: 7,   //设定实心点的大小
+                            label: {
+                                show: true
+                            },
+                            itemStyle:{
+                                color:'#f7a849',
+                                borderColor:'#AFCFF8',
+                                borderWidth:1.5
+                            }
+                        },
+                        {
+                            type: 'line',
+                            data: avgMoneys,
+                            color: 'rgba(255,0,0,.5)',
+                            symbol: 'none',
+                            smooth: true,
+                            xAxisIndex: 1,
+                            yAxisIndex: 1
+                        }
+                    ]
+                };
+                var myChart = echarts.init(document.getElementById("charts-complaint"));
+                myChart.setOption(option);
+            }
+        });
+    }
+    //五大能力分析
+    function renderCapacityAnalysis() {
+        debugger;
+        if (null != sCapacityAnalysis) {
+            $.ajax({
+                url: "/product/currCapacityCharts",
+                type: "GET",
+                // async: false,
+                timeout: 15000,
+                data: {
+                    "sCapacityAnalysisStr": JSON.stringify(sCapacityAnalysis),
+                    "statisticsStr": JSON.stringify(statistics),
+                    "statisticsCurrentMonthStr": JSON.stringify(statisticsCurrentMonth)
+                },
+                success: function (result) {
+                    var dataList = result.data;
+                    // 指定图表的配置项和数据
+                    var option = {
+                        textStyle: {
+                            color: '#AFCFF8'
+                        },
+                        title: {
+                            // text: '自定义雷达图'
+                        },
+                        /*legend: {
+                            data: ['图一', '图二', '张三', '李四']
+                        },*/
+                        radar: [
+                            {
+                                indicator: [
+                                    {text: '6S达成率', max: 100},
+                                    {text: '生产人员\n\n产值达成率', max: 100},
+                                    {text: '总产值达成率', max: 100},
+                                    {text: '全员人均\n\n产值达成率', max: 100},
+                                    {text: '生产任务完成率', max: 100}
+                                ],
+                                center: ['52%', '48%'],
+                                radius: 180,
+                                startAngle: 90,
+                                splitNumber: 1,
+                                shape: 'circle',
+                                name: {
+                                    formatter: '{value}',
+                                    textStyle: {
+                                        color: '#AFCFF8'
+                                    }
+                                },
+                                splitArea: {
+                                    areaStyle: {
+                                        color: [
+                                            'rgba(114, 172, 209, 0.05)'],
+                                        shadowColor: 'rgba(0, 0, 0, 0.1)',
+                                        shadowBlur: 10
+                                    }
+                                },
+                                axisLine: {
+                                    lineStyle: {
+                                        color: 'rgba(255, 255, 255, 0.5)'
+                                    }
+                                },
+                                splitLine: {
+                                    lineStyle: {
+                                        color: 'rgba(255, 255, 255, 0.5)'
+                                    }
+                                }
+                            }
+                        ],
+                        series: [
+                            {
+                                name: '雷达图',
+                                type: 'radar',
+                                emphasis: {
+                                    lineStyle: {
+                                        width: 4
+                                    }
+                                },
+                                data: [
+                                    {
+                                        // value: [50, 75, 76, 90, 75],
+                                        value: result.data,
+                                        name: '达成率',
+                                        label: {
+                                            show: true,
+                                            formatter: '{c}%'
+                                        },
+                                        areaStyle: {
+                                            color: 'rgba(11, 105, 166, 1)'
+                                        },
+                                        lineStyle: {
+                                            color: 'rgba(101, 124, 168, .3)'
+                                        },
+                                        itemStyle: {
+                                            borderColor: "#6cddfd"
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                    var myChart = echarts.init(document.getElementById("charts-capacity"));
+                    myChart.setOption(option);
+                }
+            });
+        }
+    }
+    //统计分析
+    function renderStatistics() {
+        $.ajax({
+            url: productService+"/led/statisticsCharts",
+            data:{
+                "statisticsCurrentMonth":statisticsCurrentMonth
+            },
+            type: "GET",
+            async: false,
+            timeout: 15000,
+            contentType: "application/x-www-form-urlencoded",
+            success: function (result) {
+                var map = result.data;
+                if (null != map) {
+                    for(var key in map){
+                        if("complaintNums" == key){
+                            $("#statistics-"+key).text(map[key]);
+                        }else {
+                            $("#statistics-"+key).text(map[key]+"元");
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    //月度订单分析
+    function renderTaskAnalysis() {
+        $.ajax({
+            url: "/product/taskCharts",
+            data:{
+                "statisticsMonth":statisticsMonth,
+                "startDay":startDay,
+                "endDay":endDay
+            },
+            type: "GET",
+            timeout: 15000,
+            success: function (result) {
+                var data = result.data;
+                // 指定图表的配置项和数据
+                var option = {
+                    textStyle: {
+                        color: '#AFCFF8'
+                    },
+                    legend: {
+                        data: ['结案订单', '剩余订单'],
+                        textStyle: {
+                            color: '#AFCFF8'
+                        }
+                    },
+                    grid: {
+                        top: 40
+                    },
+                    tooltip: {},
+                    xAxis: {
+                        type: 'category',
+                        name: '年月',
+                        data: data.date,
+                        axisLine: {
+                            lineStyle: {
+                                color: 'rgba(101, 124, 168, .3)'
+                            }
+                        }
+                    },
+                    yAxis: {
+                        type: 'value',
+                        name: '结案订单/\n剩余订单',
+                        splitLine: {
+                            show: false
+                        },
+                        splitNumber:3,//刻度分割数
+                        axisLine: {
+                            lineStyle: {
+                                color: 'rgba(101, 124, 168, .3)'
+                            }
+                        }
+                    },
+                    series: [{
+                        name: '结案订单',
+                        data: data.finishData,
+                        type: 'bar',
+                        stack:"任务",
+                        color: '#8cfffb',
+                        barWidth:20
+                    },
+                        {
+                            name: '剩余订单',
+                            type: 'bar',
+                            stack:"任务",
+                            data: data.unfinishData,
+                            barWidth: '10',
+                            color: '#228FFE',
+                            label: {
+                                show: true,
+                                position:"top"
+                            }
+                        },
+                        {
+                            name: '结案订单',
+                            data: data.finishData,
+                            type: 'line',
+                            symbol: 'none',
+                            smooth: true,
+                            lineStyle:{
+                                type: "dashed"
+                            },
+                            color: '#8cfffb'
+                        }
+                    ]
+                };
+                var myChart = echarts.init(document.getElementById("charts-task"));
+                myChart.setOption(option);
+            }
+        });
+    }
+
+
+    /*
+     * 盘点分析
+     */
+    function renderCheckMoneyDateAnalysis(){
+        var lossInventoryMoneys = new Array();//盘亏金额
+        var lossAbsoluteMoneys = new Array();//绝对值损耗
+        var xList = new Array();
+        $.ajax({
+            url: productService+"/led/checkMoneyDateCharts",
+            data:{
+                "statisticsMonth":statisticsMonth,
+                "statisticsCurrentMonth":statisticsCurrentMonth
+            },
+            type: "GET",
+            timeout : 15000,
+            contentType: "application/x-www-form-urlencoded",
+            success: function (result) {
+                var dataArr = result.data;
+                if(null!=dataArr&&dataArr.length>0){
+                    for(var i=0;i<dataArr.length;i++){
+                        lossInventoryMoneys.push(dataArr[i].lossInventoryMoney);
+                        lossAbsoluteMoneys.push(dataArr[i].lossAbsoluteMoney)
+                        xList.push(subDate(dataArr[i].checkDate));
+                    }
+                }
+                // 指定图表的配置项和数据
+                var option = {
+                    textStyle: {
+                        color: '#AFCFF8'
+                    },
+                    legend: {
+                        data: ['盘亏金额', '绝对值损耗'],
+                        textStyle: {
+                            color: '#AFCFF8'
+                        }
+                    },
+                    grid: [
+                        {x: '12%', y: '7%', width: '80%', height: '38%'},
+                        {x: '12%',y:'45%', y2: '7%', width: '80%', height: '42%'}
+                    ],
+                    tooltip: {},
+                    xAxis: [
+                        {
+                            type: 'category',
+                            // data: xList,
+                            gridIndex:0,
+                            offset:20,
+                            axisLine: {
+                                lineStyle: {
+                                    color: 'rgba(101, 124, 168, .3)'
+                                }
+                            },
+                            splitLine: {
+                                show: false
+                            }
+                        },
+                        {
+                            type: 'category',
+                            name: '年月',
+                            data: xList,
+                            gridIndex:1,
+                            axisLine: {
+                                lineStyle: {
+                                    color: 'rgba(101, 124, 168, .3)'
+                                }
+                            },
+                            splitLine: {
+                                show: false
+                            }
+                        }
+                    ],
+                    yAxis: [
+                        {
+                            type: 'value',
+                            // name: '盘亏金额',
+                            gridIndex:0,
+                            splitNumber: 1,
+                            nameGap: 10,
+                            axisLine: {
+                                lineStyle: {
+                                    color: 'rgba(101, 124, 168, .3)'
+                                }
+                            },
+                            splitLine: {
+                                show: false
+                            }
+                        },
+                        {
+                            type: 'value',
+                            // name: '绝对值损耗',
+                            gridIndex:1,
+                            splitNumber: 2,
+                            nameGap: 10,
+                            axisLine: {
+                                lineStyle: {
+                                    color: 'rgba(101, 124, 168, .3)'
+                                }
+                            },
+                            splitLine: {
+                                show: false
+                            }
+                        }
+                    ],
+                    series: [
+                        {
+                            type: 'line',
+                            name: '盘亏金额',
+                            data: lossInventoryMoneys,
+                            color: '#af586b',
+                            xAxisIndex: 0,
+                            yAxisIndex: 0,
+                            symbol: "circle",      // 默认是空心圆（中间是白色的），改成实心圆
+                            symbolSize: 7,   //设定实心点的大小
+                            label: {
+                                show: true
+                            },
+                            itemStyle:{
+                                color:'#af586b',
+                                borderColor:'#AFCFF8',
+                                borderWidth:1.5
+                            }
+                        },
+                        {
+                            type: 'line',
+                            name: '绝对值损耗',
+                            data: lossAbsoluteMoneys,
+                            color: '#61a747',
+                            xAxisIndex: 1,
+                            yAxisIndex: 1,
+                            symbol: "circle",      // 默认是空心圆（中间是白色的），改成实心圆
+                            symbolSize: 7,   //设定实心点的大小
+                            label: {
+                                show: true
+                            },
+                            itemStyle:{
+                                color:'#61a747',
+                                borderColor:'#AFCFF8',
+                                borderWidth:1.5
+                            }
+                        }
+                    ]
+                };
+                var myChart = echarts.init(document.getElementById("charts-checkMoneyDate"));
+                myChart.setOption(option);
+            }
+        });
+    }
+
+    /**
+     * 当月盘点情况
+     */
+    function renderCheckMoneyDeptAnalysis() {
+        var lossInventoryMoneys = new Array();//盘亏金额
+        var lossAbsoluteMoneys = new Array();//绝对值损耗
+        var xList = new Array();
+        $.ajax({
+            url: productService+"/led/checkMoneyDeptCharts",
+            data:{
+                "statisticsCurrentMonth":statisticsCurrentMonth
+            },
+            type: "GET",
+            timeout : 15000,
+            contentType: "application/x-www-form-urlencoded",
+            success: function (result) {
+                var nowTime = result.message;
+                // setInterval("timer()",1000);
+                // $("#d-date").text(nowTime);
+                var dataArr = result.data;
+                if(null!=dataArr&&dataArr.length>0){
+                    for(var i=0;i<dataArr.length;i++){
+                        lossInventoryMoneys.push(dataArr[i].lossInventoryMoney);
+                        lossAbsoluteMoneys.push(dataArr[i].lossAbsoluteMoney);
+                        xList.push(dataArr[i].workshopName);
+                    }
+                }
+                // 指定图表的配置项和数据
+                var option = {
+                    textStyle: {
+                        color: '#AFCFF8'
+                    },
+                    legend: {
+                        data: ['盘亏金额','绝对值损耗'],
+                        textStyle: {
+                            color: '#AFCFF8'
+                        }
+                    },
+                    tooltip:{
+                        show: true //显示提示框
+                    },
+                    grid: {
+                        x: '12%', y: '7%', width: '80%', height: '50%'
+                    },
+                    xAxis: {
+                        type: 'category',
+                        name: '部门',
+                        data: xList,
+                        axisLine: {
+                            lineStyle: {
+                                color: 'rgba(101, 124, 168, .3)'
+                            }
+                        },
+                        splitLine: {
+                            show: false
+                        },
+                        axisLabel: {
+                            alignWithLabel: true,
+                            interval: 0,
+                            textStyle: {fontSize: 10},
+                            formatter: function (value) {
+                                //x轴的文字改为竖版显示
+                                var str = value.split("");
+                                for (var i = 0; i < str.length; i++) {
+                                    if (str[i] == "（" || str[i] == "(" ) {
+                                        str[i] = "︵";
+                                    }
+                                    if (str[i] == "）" || str[i] == ")" ) {
+                                        str[i] = "︶";
+                                    }
+                                }
+                                return str.join("\n");
+                            }
+                        }
+                    },
+                    yAxis: {
+                        type: 'value',
+                        axisLine: {
+                            lineStyle: {
+                                color: 'rgba(101, 124, 168, .3)'
+                            },
+                        },
+                        splitNumber: 2,
+                        splitLine: {
+                            show: false
+                        }
+                    },
+                    series: [
+                        {
+                            name:'盘亏金额',
+                            type: 'bar',
+                            stack:'inventory',
+                            data: lossInventoryMoneys,
+                            barWidth: '10',
+                            color: '#228FFE'
+                        },
+                        {
+                            name:'绝对值损耗',
+                            type: 'bar',
+                            stack:'absolute',
+                            data: lossAbsoluteMoneys,
+                            barWidth: '10',
+                            color: '#8cfffb'
+                        }
+                    ]
+                };
+                var myChart = echarts.init(document.getElementById("charts-checkMoneyDept"));
+                myChart.setOption(option);
+            }
+        });
+    }
+
+    /*
+     * 计时器
+     */
+    function timer(){
+        var date = new Date();
+        var year = date.getFullYear();
+        var month = date.getMonth() + 1;
+        if(month<10){
+            month = "0"+month;
+        }
+        var day = date.getDate();
+        if(day<10){
+            day = "0"+day;
+        }
+        var hour = date.getHours();
+        if(hour<10){
+            hour = "0"+hour;
+        }
+        var minutes = date.getMinutes();
+        if(minutes<10){
+            minutes = "0"+minutes;
+        }
+        var second = date.getSeconds();
+        if(second<10){
+            second = "0"+second;
+        }
+        $("#d-date").text(year+"-"+month+"-"+day+" "+hour+":"+minutes+":"+second);
+    }
+
+    //时间截取
+    function subDate(date) {
+        var dateStr = "";
+        if(date!=null){
+            var dateArr = date.split("-");
+            dateStr+=dateArr[0];
+            dateStr+=dateArr[1];
+        }
+        return dateStr;
+    }
+
+</script>
+</body>
+</html>

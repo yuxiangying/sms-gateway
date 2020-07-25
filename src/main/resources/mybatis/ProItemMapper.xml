@@ -1,0 +1,344 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.bs.pro.mapper.ProItemMapper">
+    <resultMap id="BaseResultMap" type="com.bs.pro.bean.ProItem">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="code" property="code" jdbcType="VARCHAR"/>
+        <result column="name" property="name" jdbcType="VARCHAR"/>
+        <result column="model" property="model" jdbcType="VARCHAR"/>
+        <result column="concern_level" property="concernLevel" jdbcType="INTEGER"/>
+        <result column="charge_man" property="chargeMan" jdbcType="VARCHAR"/>
+        <result column="members" property="members" jdbcType="VARCHAR"/>
+        <result column="start_time" property="startTime" jdbcType="DATE"/>
+        <result column="end_time" property="endTime" jdbcType="DATE"/>
+        <result column="content" property="content" jdbcType="VARCHAR"/>
+        <result column="scheme_time" property="schemeTime" jdbcType="DATE"/>
+        <result column="scheme_man" property="schemeMan" jdbcType="VARCHAR"/>
+        <result column="phone_time" property="phoneTime" jdbcType="DATE"/>
+        <result column="phone_man" property="phoneMan" jdbcType="VARCHAR"/>
+        <result column="prototype_time" property="prototypeTime" jdbcType="DATE"/>
+        <result column="prototype_man" property="prototypeMan" jdbcType="VARCHAR"/>
+        <result column="test_time" property="testTime" jdbcType="DATE"/>
+        <result column="test_man" property="testMan" jdbcType="VARCHAR"/>
+        <result column="publish_time" property="publishTime" jdbcType="DATE"/>
+        <result column="publish_man" property="publishMan" jdbcType="VARCHAR"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+
+        <result column="scheme_real_time" property="schemeRealTime" jdbcType="DATE"/>
+        <result column="scheme_progress" property="schemeProgress" jdbcType="VARCHAR"/>
+        <result column="phone_real_time" property="phoneRealTime" jdbcType="DATE"/>
+        <result column="phone_progress" property="phoneProgress" jdbcType="VARCHAR"/>
+        <result column="prototype_real_time" property="prototypeRealTime" jdbcType="DATE"/>
+        <result column="prototype_progress" property="prototypeProgress" jdbcType="VARCHAR"/>
+        <result column="test_real_time" property="testRealTime" jdbcType="DATE"/>
+        <result column="test_progress" property="testProgress" jdbcType="VARCHAR"/>
+        <result column="publish_real_time" property="publishRealTime" jdbcType="DATE"/>
+        <result column="publish_progress" property="publishProgress" jdbcType="VARCHAR"/>
+        <result column="reason" property="reason" jdbcType="VARCHAR"/>
+        <result column="status" property="status" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="com.bs.pro.bean.ProItem">
+        insert into pro_item
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="code != null and code != '' ">
+                code,
+            </if>
+            <if test="name != null and name != '' ">
+                name,
+            </if>
+            <if test="model != null and model != '' ">
+                model,
+            </if>
+            <if test="content != null and content != '' ">
+                content,
+            </if>
+            <if test="chargeMan != null and chargeMan != '' ">
+                charge_man,
+            </if>
+            <if test="concernLevel != null ">
+                concern_level,
+            </if>
+            <if test="members != null and members != '' ">
+                members,
+            </if>
+            <if test="startTime != null and startTime != '' ">
+                start_time,
+            </if>
+            <if test="endTime != null and endTime != '' ">
+                end_time,
+            </if>
+
+            <if test="schemeTime != null and schemeTime != '' ">
+                scheme_time,
+            </if>
+            <if test="schemeMan != null and schemeMan != '' ">
+                scheme_man,
+            </if>
+            <if test="phoneTime != null and phoneTime != '' ">
+                phone_time,
+            </if>
+            <if test="phoneMan != null and phoneMan != '' ">
+                phone_man,
+            </if>
+            <if test="prototypeTime != null and prototypeTime != '' ">
+                prototype_time,
+            </if>
+            <if test="prototypeMan != null and prototypeMan != '' ">
+                prototype_man,
+            </if>
+            <if test="testTime != null and testTime != '' ">
+                test_time,
+            </if>
+            <if test="testMan != null and testMan != '' ">
+                test_man,
+            </if>
+            <if test="publishTime != null and publishTime != '' ">
+                publish_time,
+            </if>
+            <if test="publishMan != null and publishMan != '' ">
+                publish_man,
+            </if>
+            <if test="createTime != null and createTime != '' ">
+                create_time,
+            </if>
+            <if test="updateTime != null and updateTime != '' ">
+                update_time,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="code != null and code != '' ">
+                #{code,jdbcType=VARCHAR},
+            </if>
+            <if test="name != null and name != '' ">
+                #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="model != null and model != '' ">
+                #{model,jdbcType=VARCHAR},
+            </if>
+            <if test="content != null and content != '' ">
+                #{content,jdbcType=VARCHAR},
+            </if>
+            <if test="chargeMan != null and chargeMan != '' ">
+                #{chargeMan,jdbcType=VARCHAR},
+            </if>
+            <if test="concernLevel != null">
+                #{concernLevel,jdbcType=INTEGER},
+            </if>
+            <if test="members != null and members != '' ">
+                #{members,jdbcType=VARCHAR},
+            </if>
+            <if test="startTime != null and startTime != '' ">
+                #{startTime,jdbcType=DATE},
+            </if>
+            <if test="endTime != null and endTime != '' ">
+                #{endTime,jdbcType=DATE},
+            </if>
+
+            <if test="schemeTime != null and schemeTime != '' ">
+                #{schemeTime,jdbcType=DATE},
+            </if>
+            <if test="schemeMan != null and schemeMan != '' ">
+                #{schemeMan,jdbcType=VARCHAR},
+            </if>
+            <if test="phoneTime != null and phoneTime != '' ">
+                #{phoneTime,jdbcType=DATE},
+            </if>
+            <if test="phoneMan != null and phoneMan != '' ">
+                #{phoneMan,jdbcType=VARCHAR},
+            </if>
+            <if test="prototypeTime != null and prototypeTime != '' ">
+                #{prototypeTime,jdbcType=DATE},
+            </if>
+            <if test="prototypeMan != null and prototypeMan != '' ">
+                #{prototypeMan,jdbcType=VARCHAR},
+            </if>
+            <if test="testTime != null and testTime != '' ">
+                #{testTime,jdbcType=DATE},
+            </if>
+            <if test="testMan != null and testMan != '' ">
+                #{testMan,jdbcType=VARCHAR},
+            </if>
+            <if test="publishTime != null and publishTime != '' ">
+                #{publishTime,jdbcType=DATE},
+            </if>
+            <if test="publishMan != null and publishMan != '' ">
+                #{publishMan,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null and createTime != '' ">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateTime != null and updateTime != '' ">
+                #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+        </trim>
+    </insert>
+
+
+    <update id="updateProgress" parameterType="com.bs.pro.bean.ProItem">
+        update pro_item
+        <set>
+            <if test="schemeRealTime != null and schemeRealTime!=''">
+                scheme_real_time = #{schemeRealTime,jdbcType=DATE},
+            </if>
+            <if test="schemeProgress != null">
+                scheme_progress = #{schemeProgress,jdbcType=VARCHAR},
+            </if>
+            <if test="phoneRealTime != null and phoneRealTime!=''">
+                phone_real_time = #{phoneRealTime,jdbcType=DATE},
+            </if>
+            <if test="phoneProgress != null">
+                phone_progress = #{phoneProgress,jdbcType=VARCHAR},
+            </if>
+            <if test="prototypeRealTime != null and prototypeRealTime!=''">
+                prototype_real_time = #{prototypeRealTime,jdbcType=DATE},
+            </if>
+            <if test="prototypeProgress != null">
+                prototype_progress = #{prototypeProgress,jdbcType=VARCHAR},
+            </if>
+            <if test="testRealTime != null and testRealTime!=''">
+                test_real_time = #{testRealTime,jdbcType=DATE},
+            </if>
+            <if test="testProgress != null">
+                test_progress = #{testProgress,jdbcType=VARCHAR},
+            </if>
+            <if test="publishRealTime != null and publishRealTime!=''">
+                publish_real_time = #{publishRealTime,jdbcType=DATE},
+            </if>
+            <if test="publishProgress != null">
+                publish_progress = #{publishProgress,jdbcType=VARCHAR},
+            </if>
+            <if test="status != null">
+                status = #{status,jdbcType=INTEGER},
+            </if>
+        </set>
+        where code = #{code,jdbcType=VARCHAR}
+    </update>
+
+    <update id="modItem" parameterType="com.bs.pro.bean.ProItem">
+        update pro_item
+        <set>
+            <if test="name != null and name!=''">
+                name = #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="model != null and model!=''">
+                model = #{model,jdbcType=VARCHAR},
+            </if>
+            <if test="startTime != null and startTime!=''">
+                start_time = #{startTime,jdbcType=DATE},
+            </if>
+            <if test="endTime != null and endTime!=''">
+                end_time = #{endTime,jdbcType=DATE},
+            </if>
+            <if test="concernLevel != null">
+                concern_level = #{concernLevel,jdbcType=INTEGER},
+            </if>
+            <if test="chargeMan != null">
+                charge_man = #{chargeMan,jdbcType=VARCHAR},
+            </if>
+            <if test="members != null">
+                members = #{members,jdbcType=VARCHAR},
+            </if>
+            <if test="content != null">
+                content = #{content,jdbcType=VARCHAR},
+            </if>
+            <if test="content != null">
+                content = #{content,jdbcType=VARCHAR},
+            </if>
+            <if test="schemeTime != null and schemeTime!=''">
+                scheme_time = #{schemeTime,jdbcType=DATE},
+            </if>
+            <if test="schemeMan != null">
+                scheme_man = #{schemeMan,jdbcType=VARCHAR},
+            </if>
+            <if test="phoneTime != null and phoneTime!=''">
+                phone_time = #{phoneTime,jdbcType=DATE},
+            </if>
+            <if test="phoneMan != null">
+                phone_man = #{phoneMan,jdbcType=VARCHAR},
+            </if>
+            <if test="prototypeTime != null and prototypeTime!=''">
+                prototype_time = #{prototypeTime,jdbcType=DATE},
+            </if>
+            <if test="prototypeMan != null">
+                prototype_man = #{prototypeMan,jdbcType=VARCHAR},
+            </if>
+            <if test="testTime != null and testTime!=''">
+                test_time = #{testTime,jdbcType=DATE},
+            </if>
+            <if test="testMan != null">
+                test_man = #{testMan,jdbcType=VARCHAR},
+            </if>
+            <if test="publishTime != null and publishTime!=''">
+                publish_time = #{publishTime,jdbcType=DATE},
+            </if>
+            <if test="publishMan != null">
+                publish_man = #{publishMan,jdbcType=VARCHAR},
+            </if>
+            <if test="reason != null">
+                reason = #{reason,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where code = #{code,jdbcType=VARCHAR}
+    </update>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        select * from pro_item;
+    </select>
+
+    <select id="selectValidItems" parameterType="String" resultMap="BaseResultMap">
+        select * from pro_item where status != -1 and (publish_real_time &gt; #{oneMonthAgo} or publish_real_time='1970-01-01') order by id desc;
+    </select>
+
+    <select id="selectValidStatisticItems" parameterType="String" resultMap="BaseResultMap">
+        select * from pro_item where status != -1;
+    </select>
+
+    <select id="selectByCode" parameterType="String" resultMap="BaseResultMap">
+        select * from pro_item where code = #{code,jdbcType=VARCHAR};
+    </select>
+
+    <update id="updateStatus" parameterType="Map">
+        update pro_item
+        <set>
+            <if test="status != null">
+                status = #{status},
+            </if>
+            <if test="reason != null and reason != ''">
+                reason = #{reason},
+            </if>
+        </set>
+        where code = #{code}
+    </update>
+
+    <select id="searchByParam" parameterType="Map" resultMap="BaseResultMap">
+        select * from pro_item where 1=1
+        <if test="code != null " >
+            AND code like CONCAT('%',#{code},'%')
+        </if>
+        <if test="name != null " >
+            AND name like CONCAT('%',#{name},'%')
+        </if>
+
+        <if test="startTimeBegin != null " >
+            AND start_time &gt;=  #{startTimeBegin}
+        </if>
+        <if test="startTimeEnd != null " >
+            AND start_time &lt;= #{startTimeEnd}
+        </if>
+        <if test="chargeMan != null " >
+            AND charge_man like CONCAT('%',#{chargeMan},'%')
+        </if>
+        <if test="endTimeBegin != null " >
+            AND end_time &gt;=  #{endTimeBegin}
+        </if>
+        <if test="endTimeEnd != null " >
+            AND end_time &lt;= #{endTimeEnd}
+        </if>
+        <if test="status != null " >
+            AND status = #{status}
+        </if>
+    </select>
+
+</mapper>

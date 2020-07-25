@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="zh-cmn-Hans" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+    <meta name="description" content=""/>
+    <meta name="author" content=""/>
+    <link rel="icon" href="../../favicon.ico"/>
+
+    <title>研发项目管理</title>
+    <script src="/layer/jquery-3.4.1.min.js"></script>
+    <script src="/layer/hashmap.js"></script>
+</head>
+
+<body th:value="${date}">
+
+<style>
+    html,body{
+        height:100%;
+        width:100%;
+        background: #036;
+    }
+
+    .s-item{
+        margin-right:10px;
+        font-weight:bold;
+    }
+
+    .t-img{
+        width:100%;
+        height:100%;
+        margin-left:5px;
+    }
+
+    .box-head{
+        height: 5%;
+        width: 98.65%;
+        color:#666;
+        text-align: center;
+        font-weight:bold;
+    }
+    .box{
+        height: 95%;
+        width: 97%;
+        color:white;
+        margin-left:5px;
+        padding: 16px;
+        box-shadow: 0 0 48px rgba(100,200,255,.5) inset;
+        background: rgba(0,0,0,.3);
+    }
+    .t-stat{
+        width:100%;
+        height:2%;
+        margin-bottom: 10px;
+        font-size:18px;
+    }
+
+    .t-frame-head{
+        width:100%;
+        height:4%;
+    }
+
+    .t-frame{
+        width:100%;
+        height:90%;
+        overflow-y:hidden;
+    }
+
+    table{
+        table-layout:fixed;
+        empty-cells:show;
+        border-collapse: collapse;
+        margin:0 auto;
+        font-size:16px;
+        border:1px solid #cad9ea;
+        color:white;
+    }
+
+    table th{
+        background-repeat:repeat-x;
+        height:38px;
+        word-break:keep-all;
+        overflow: hidden;
+        white-space:nowrap;
+        border:1px solid #cad9ea;
+        padding:0 5px 0;
+    }
+
+    table td {
+        background-repeat:repeat-x;
+        height:30px;
+        word-break:keep-all;
+        overflow: hidden;
+        white-space:nowrap;
+        border:1px solid #cad9ea;
+        padding:0 5px 0;
+    }
+
+    .t-span{
+        margin-left:15px;
+        color: black;
+    }
+
+    .tag-ahead{
+        margin-left:900px;
+        background-color:green;
+        margin-right:3px;
+    }
+    .tag-delay{
+        margin-right:3px;
+        background-color:#FF0004;
+    }
+    .tag-pause{
+        margin-right: 3px;
+        background-color:yellow;
+    }
+
+    .td-center{
+        text-align: center;
+    }
+
+</style>
+
+<div class='box-head'>
+    <img src="/img/logo.jpg" class="t-img" />
+</div>
+<div class='box'>
+    <div class="t-stat">
+        <label>项目总数:</label><span id="items-total" class="s-item"></span>
+        <label>进度正常数:</label><span id="items-ok" class="s-item"></span>
+        <label>进度异常数:</label><span id="items-abnormal" class="s-item"></span>
+        <label>项目进度异常率:</label><span id="items-ab-percent" class="s-item"></span>
+
+        <label class="tag-ahead">&nbsp;&nbsp;&nbsp;&nbsp;</label><span class="s-item">正常</span>
+        <label class="tag-delay">&nbsp;&nbsp;&nbsp;&nbsp;</label><span class="s-item">延期</span>
+        <label class="tag-pause">&nbsp;&nbsp;&nbsp;&nbsp;</label><span class="s-item">暂停</span>
+    </div>
+    <div class="t-frame-head">
+        <table width="100%" style="border:none;">
+            <thead>
+            <tr>
+                <th style="border-bottom:none;padding-top:5px;">项目名称</th>
+                <th style="border-bottom:none;padding-top:5px;">产品型号</th>
+                <th style="border-bottom:none;padding-top:5px;">主要责任人</th>
+                <th style="border-bottom:none;padding-top:5px;">任务下达</th>
+                <th style="border-bottom:none;padding-top:5px;">要求完成</th>
+                <th style="border-bottom:none;padding-top:5px;">方案</th>
+                <th style="border-bottom:none;padding-top:5px;">手板/开模</th>
+                <th style="border-bottom:none;padding-top:5px;">样机</th>
+                <th style="border-bottom:none;padding-top:5px;">测试</th>
+                <th style="border-bottom:none;padding-top:5px;">资料发布</th>
+                <th style="border-bottom:none;padding-top:5px;">是否结案</th>
+                <th style="border-bottom:none;padding-top:5px;">最新进度说明</th>
+            </tr>
+            </thead>
+        </table>
+    </div>
+    <div class="t-frame" id="d-frame-data">
+        <table width="100%" id="t-data" style="border-top:none;">
+
+        </table>
+    </div>
+</div>
+
+<script>
+    var statusArray = {
+        "-1":"取消",
+        "0":"暂停",
+        "1":"进行中",
+        "2":"已完成"
+    };
+    $(function () {
+        renderList();
+        setInterval("renderList()",3600000);
+    });
+    // 切屏记录的当前页
+    var curPage = 0;
+    var pageSize = 29;
+    var switchInterval;
+
+    function renderList(){
+        // 初始化数据
+        curPage = 0;
+        if(null!=switchInterval){
+            clearInterval(switchInterval);
+        }
+        var nowDate = new Date().Format("yyyy-MM-dd");
+        $("body").attr("value", nowDate);
+        renderStatistic();
+        $.ajax({
+            url: "/item/validData",
+            type: "GET",
+            success: function (result) {
+                if(null!=result) {
+                    var trs="";
+                    var schemeRealMap = new HashMap();
+                    var phoneRealMap = new HashMap();
+                    var prototypeRealMap = new HashMap();
+                    var testRealMap = new HashMap();
+                    var publishRealMap = new HashMap();
+                    if(result.length<=29) {
+                        for (var i = 0; i < result.length; i++) {
+                            var chiefMembers = result[i].chargeMan;
+                            if(""!=result[i].members&&null!=result[i].members){
+                                chiefMembers = result[i].chargeMan + "，" + result[i].members;
+                            }
+                            var finishStr = "-";
+                            if(2==parseInt(result[i].status)){
+                                finishStr = "√";
+                            }
+                            var tr = "<tr code=\"" + result[i].code + "\" status=\"" + result[i].status + "\"><td>" + result[i].name + "</td><td>" + result[i].model + "</td><td>" + chiefMembers
+                                + "</td><td class=\"td-center\">" + ("1970-01-01" == result[i].startTime ? "-" : result[i].startTime)
+                                + "</td><td class=\"td-center\">" + ("1970-01-01" == result[i].endTime ? "-" : result[i].endTime) + "</td><td name=\"scheme\" class=\"td-center\"><span name=\"scheme_time\">" + ("1970-01-01" == result[i].schemeTime ? "-" : result[i].schemeTime)
+                                + "</span><span name=\"scheme_tag\" class=\"t-span\"></span></td><td name=\"phone\" class=\"td-center\"><span name=\"phone_time\">" + ("1970-01-01" == result[i].phoneTime ? "-" : result[i].phoneTime)
+                                + "</span><span name=\"phone_tag\" class=\"t-span\"></span></td><td name=\"prototype\" class=\"td-center\"><span name=\"prototype_time\">" + ("1970-01-01" == result[i].prototypeTime ? "-" : result[i].prototypeTime)
+                                + "</span><span name=\"prototype_tag\" class=\"t-span\"></span></td><td name=\"test\" class=\"td-center\"><span name=\"test_time\">" + ("1970-01-01" == result[i].testTime ? "-" : result[i].testTime)
+                                + "</span><span name=\"test_tag\" class=\"t-span\"></span></td><td name=\"publish\" class=\"td-center\"><span name=\"publish_time\">" + ("1970-01-01" == result[i].publishTime ? "-" : result[i].publishTime)
+                                + "</span><span name=\"publish_tag\" class=\"t-span\"></span></td><td name=\"is_finish\" class=\"td-center\">"+finishStr+"</td><td name=\"progress\"></td>";
+                            trs += tr;
+                            schemeRealMap.put(result[i].code, result[i].schemeRealTime);
+                            phoneRealMap.put(result[i].code, result[i].phoneRealTime);
+                            prototypeRealMap.put(result[i].code, result[i].prototypeRealTime);
+                            testRealMap.put(result[i].code, result[i].testRealTime);
+                            publishRealMap.put(result[i].code, result[i].publishRealTime);
+                        }
+                        $("#t-data").html(trs);
+                        renderTime(schemeRealMap, phoneRealMap, prototypeRealMap, testRealMap, publishRealMap);
+                    } else{   // 需要切屏
+                        for (var i = 0; i < pageSize; i++) {
+                            var chiefMembers = result[i].chargeMan;
+                            if(""!=result[i].members&&null!=result[i].members){
+                                chiefMembers = result[i].chargeMan + "，" + result[i].members;
+                            }
+                            var finishStr = "-";
+                            if(2==parseInt(result[i].status)){
+                                finishStr = "√";
+                            }
+                            var tr = "<tr code=\"" + result[i].code + "\" status=\"" + result[i].status + "\"><td>" + result[i].name + "</td><td>" + result[i].model + "</td><td>" + chiefMembers + "</td><td class=\"td-center\">" + ("1970-01-01" == result[i].startTime ? "-" : result[i].startTime)
+                                + "</td><td class=\"td-center\">" + ("1970-01-01" == result[i].endTime ? "-" : result[i].endTime) + "</td><td name=\"scheme\" class=\"td-center\"><span name=\"scheme_time\">" + ("1970-01-01" == result[i].schemeTime ? "-" : result[i].schemeTime)
+                                + "</span><span name=\"scheme_tag\" class=\"t-span\"></span></td><td name=\"phone\" class=\"td-center\"><span name=\"phone_time\">" + ("1970-01-01" == result[i].phoneTime ? "-" : result[i].phoneTime)
+                                + "</span><span name=\"phone_tag\" class=\"t-span\"></span></td><td name=\"prototype\" class=\"td-center\"><span name=\"prototype_time\">" + ("1970-01-01" == result[i].prototypeTime ? "-" : result[i].prototypeTime)
+                                + "</span><span name=\"prototype_tag\" class=\"t-span\"></span></td><td name=\"test\" class=\"td-center\"><span name=\"test_time\">" + ("1970-01-01" == result[i].testTime ? "-" : result[i].testTime)
+                                + "</span><span name=\"test_tag\" class=\"t-span\"></span></td><td name=\"publish\" class=\"td-center\"><span name=\"publish_time\">" + ("1970-01-01" == result[i].publishTime ? "-" : result[i].publishTime)
+                                + "</span><span name=\"publish_tag\" class=\"t-span\"></span></td><td name=\"is_finish\" class=\"td-center\">"+finishStr+"</td><td name=\"progress\"></td>";
+                            trs += tr;
+                            schemeRealMap.put(result[i].code, result[i].schemeRealTime);
+                            phoneRealMap.put(result[i].code, result[i].phoneRealTime);
+                            prototypeRealMap.put(result[i].code, result[i].prototypeRealTime);
+                            testRealMap.put(result[i].code, result[i].testRealTime);
+                            publishRealMap.put(result[i].code, result[i].publishRealTime);
+                        }
+                        $("#t-data").html(trs);
+                        renderTime(schemeRealMap, phoneRealMap, prototypeRealMap, testRealMap, publishRealMap);
+                        curPage++;
+                        switchInterval = setInterval(function(){ switchScreen(result); },30000);
+                    }
+                }
+
+            }
+        });
+    }
+
+    function renderStatistic(){
+        $.ajax({
+            url: "/item/validDataStatistic",
+            type: "GET",
+            success: function (result) {
+                var itemsTotal = result.length;
+                var okNumbers = calculateOks(result);
+                // 渲染项目总数，进度正常数，进度异常数，进度异常率
+                $("#items-total").text(itemsTotal);
+                $("#items-ok").text(okNumbers);
+                $("#items-abnormal").text(itemsTotal-okNumbers);
+                var abPercent = ((itemsTotal-okNumbers)*100/itemsTotal).toFixed(2);
+                $("#items-ab-percent").text(abPercent);
+
+            }
+        });
+    }
+
+    /*
+     * 渲染各阶段提前、延后天数，整体进度等
+     */
+    function renderTime(schemeRealMap,phoneRealMap,prototypeRealMap,testRealMap,publishRealMap){
+        var curDate = $("body").attr("value");
+        var codes = "";
+        $("#t-data").children("tr").each(function(){
+            var currentStep = "";
+            var code = $(this).attr("code");
+            codes += code+",";
+            var status = $(this).attr("status");
+            var endTime = $(this).children("td").eq(4).text();
+            var tdPublish = $(this).children("td[name='publish']");
+            var publishTime = $(tdPublish).children("span[name='publish_time']").text();
+            var publishRealTime = publishRealMap.get(code);
+            var tdTest = $(this).children("td[name='test']");
+            var testTime = $(tdTest).children("span[name='test_time']").text();
+            var testRealTime = testRealMap.get(code);
+            var tdPrototype = $(this).children("td[name='prototype']");
+            var prototypeTime = $(tdPrototype).children("span[name='prototype_time']").text();
+            var prototypeRealTime = prototypeRealMap.get(code);
+            var tdPhone = $(this).children("td[name='phone']");
+            var phoneTime = $(tdPhone).children("span[name='phone_time']").text();
+            var phoneRealTime = phoneRealMap.get(code);
+            var tdScheme = $(this).children("td[name='scheme']");
+            var schemeTime = $(tdScheme).children("span[name='scheme_time']").text();
+            var schemeRealTime = schemeRealMap.get(code);
+            if(null!=publishRealTime&&""!=publishRealTime&&"1970-01-01"!=publishRealTime){
+                currentStep = "finish";
+                //     calculateDay(endTime,publishRealTime,$(this).children("td[name='whole_time']"),status,"已结束.");
+            }else if(null!=testRealTime&&""!=testRealTime&&"1970-01-01"!=testRealTime){
+                currentStep = "publish";
+                //     calculateDay(publishTime,publishRealTime,$(this).children("td[name='whole_time']"),status,"资料发布.");
+            }else if(null!=prototypeRealTime&&""!=prototypeRealTime&&"1970-01-01"!=prototypeRealTime){
+                currentStep = "test";
+            }else if(null!=phoneRealTime&&""!=phoneRealTime&&"1970-01-01"!=phoneRealTime){
+                currentStep = "prototype";
+            }else if(null!=schemeRealTime&&""!=schemeRealTime&&"1970-01-01"!=schemeRealTime){
+                currentStep = "phone";
+            } else{
+                currentStep = "scheme";
+            }
+
+            // 渲染每个阶段的提前、延误天数
+            if("scheme" == currentStep){
+                if(0==status) {      // 项目暂停
+                    $(tdScheme).css("background-color", "yellow").css("color","black");
+                }else {              // 当前时间和方案预计完成时间对比
+                    gap = twoDateGap(schemeTime, curDate);
+                    if (gap > 0) {
+                        $(tdScheme).css("background-color", "#FF0004");
+                    } else {
+                        $(tdScheme).css("background-color", "green");
+                    }
+                }
+            } else if("phone" == currentStep){
+                if(0==status) {      // 项目暂停
+                    $(tdScheme).css("background-color", "yellow").css("color","black");
+                    $(tdPhone).css("background-color", "yellow").css("color","black");
+                }else {              // 当前时间和开模预计完成时间对比
+                    gap = twoDateGap(phoneTime, curDate);
+                    if (gap > 0) {
+                        $(tdScheme).css("background-color", "#FF0004");
+                        $(tdPhone).css("background-color", "#FF0004");
+                    } else {
+                        $(tdScheme).css("background-color", "green");
+                        $(tdPhone).css("background-color", "green");
+                    }
+                }
+            } else if("prototype" == currentStep){
+                if(0==status) {      // 项目暂停
+                    $(tdScheme).css("background-color", "yellow").css("color","black");
+                    $(tdPhone).css("background-color", "yellow").css("color","black");
+                    $(tdPrototype).css("background-color", "yellow").css("color","black");
+                }else {              // 当前时间和样机预计完成时间对比
+                    gap = twoDateGap(prototypeTime, curDate);
+                    if (gap > 0) {
+                        $(tdScheme).css("background-color", "#FF0004");
+                        $(tdPhone).css("background-color", "#FF0004");
+                        $(tdPrototype).css("background-color", "#FF0004");
+                    } else {
+                        $(tdScheme).css("background-color", "green");
+                        $(tdPhone).css("background-color", "green");
+                        $(tdPrototype).css("background-color", "green");
+                    }
+                }
+            } else if("test" == currentStep){
+                if(0==status) {      // 项目暂停
+                    $(tdScheme).css("background-color", "yellow").css("color","black");
+                    $(tdPhone).css("background-color", "yellow").css("color","black");
+                    $(tdPrototype).css("background-color", "yellow").css("color","black");
+                    $(tdTest).css("background-color", "yellow").css("color","black");
+                }else {              // 当前时间和测试预计完成时间对比
+                    gap = twoDateGap(testTime, curDate);
+                    if (gap > 0) {
+                        $(tdScheme).css("background-color", "#FF0004");
+                        $(tdPhone).css("background-color", "#FF0004");
+                        $(tdPrototype).css("background-color", "#FF0004");
+                        $(tdTest).css("background-color", "#FF0004");
+                    } else {
+                        $(tdScheme).css("background-color", "green");
+                        $(tdPhone).css("background-color", "green");
+                        $(tdPrototype).css("background-color", "green");
+                        $(tdTest).css("background-color", "green");
+                    }
+                }
+            } else if("publish" == currentStep){
+                if(0==status) {      // 项目暂停
+                    $(tdScheme).css("background-color", "yellow").css("color","black");
+                    $(tdPhone).css("background-color", "yellow").css("color","black");
+                    $(tdPrototype).css("background-color", "yellow").css("color","black");
+                    $(tdTest).css("background-color", "yellow").css("color","black");
+                    $(tdPublish).css("background-color", "yellow").css("color","black");
+                }else {              // 当前时间和资料发布预计完成时间对比
+                    gap = twoDateGap(publishTime, curDate);
+                    if (gap > 0) {
+                        $(tdScheme).css("background-color", "#FF0004");
+                        $(tdPhone).css("background-color", "#FF0004");
+                        $(tdPrototype).css("background-color", "#FF0004");
+                        $(tdTest).css("background-color", "#FF0004");
+                        $(tdPublish).css("background-color", "#FF0004");
+                    } else {
+                        $(tdScheme).css("background-color", "green");
+                        $(tdPhone).css("background-color", "green");
+                        $(tdPrototype).css("background-color", "green");
+                        $(tdTest).css("background-color", "green");
+                        $(tdPublish).css("background-color", "green");
+                    }
+                }
+            } else{     //  项目结案
+                if(0==status) {      // 项目暂停
+                    $(tdScheme).css("background-color", "yellow").css("color","black");
+                    $(tdPhone).css("background-color", "yellow").css("color","black");
+                    $(tdPrototype).css("background-color", "yellow").css("color","black");
+                    $(tdTest).css("background-color", "yellow").css("color","black");
+                    $(tdPublish).css("background-color", "yellow").css("color","black");
+                }else {              // 资料发布实际时间和资料发布预计完成时间对比
+                    gap = twoDateGap(publishTime, publishRealTime);
+                    if (gap > 0) {
+                        $(tdScheme).css("background-color", "#FF0004");
+                        $(tdPhone).css("background-color", "#FF0004");
+                        $(tdPrototype).css("background-color", "#FF0004");
+                        $(tdTest).css("background-color", "#FF0004");
+                        $(tdPublish).css("background-color", "#FF0004");
+                    } else if(gap==0){
+                        $(tdScheme).css("background-color", "green");
+                        $(tdPhone).css("background-color", "green");
+                        $(tdPrototype).css("background-color", "green");
+                        $(tdTest).css("background-color", "green");
+                        $(tdPublish).css("background-color", "green");
+                    } else{
+                        $(tdScheme).css("background-color", "green");
+                        $(tdPhone).css("background-color", "green");
+                        $(tdPrototype).css("background-color", "green");
+                        $(tdTest).css("background-color", "green");
+                        $(tdPublish).css("background-color", "green");
+                    }
+                }
+            }
+
+        });
+
+        // 渲染最新进度说明
+        if(codes.length>0){
+            renderProgress(codes.substr(0,codes.length-1));
+        }
+    }
+
+    function twoDateGap(sDate,eDate){
+        var sArr = sDate.split("-");
+        var eArr = eDate.split("-");
+        var sRDate = new Date(sArr[0], sArr[1], sArr[2]);
+        var eRDate = new Date(eArr[0], eArr[1], eArr[2]);
+        var result = (eRDate-sRDate)/(24*60*60*1000);
+        return result;
+    }
+
+    /*
+     * 渲染最新进度说明,以及单元格文本溢出时滚动显示 废弃
+     */
+    function renderProgress(codes){
+        $.ajax({
+            url: "/item/renderProgress",
+            data: {
+                codes: codes
+            },
+            type: "POST",
+            success: function (result) {
+                $("#t-data").children("tr").each(function(){
+                    var code = $(this).attr("code");
+                    var progressDesc = result[code];
+                    if(null==progressDesc){
+                        progressDesc = "";
+                    }
+                    $(this).children("td[name='progress']").text("" + progressDesc + "");
+                });
+
+                // 超出宽度滚动显示
+                scrollOverWidth();
+            }
+        });
+    }
+
+    /*
+     * 计算进度正常数量
+     */
+    function calculateOks(data){
+        var result=0;
+        for(var i=0;i<data.length;i++) {
+            if(0==data[i].status){
+                continue;
+            }
+            var publishTime = data[i].publishTime;
+            var endTime = data[i].endTime;
+            var publishRealTime = data[i].publishRealTime;
+            var testTime = data[i].testTime;
+            var testRealTime = data[i].testRealTime;
+            var prototypeTime = data[i].prototypeTime;
+            var prototypeRealTime = data[i].prototypeRealTime;
+            var phoneTime = data[i].phoneTime;
+            var phoneRealTime = data[i].phoneRealTime;
+            var schemeTime = data[i].schemeTime;
+            var schemeRealTime = data[i].schemeRealTime;
+            if(null!=publishRealTime&&""!=publishRealTime&&"1970-01-01"!=publishRealTime){
+                // 项目已完成
+                if(null==endTime||""==endTime||"1970-01-01"==endTime){
+                    continue;
+                }
+                var dayGap = twoDateGap(endTime,publishRealTime);
+                if(dayGap<=0){
+                    result++;
+                }
+            }else if(null!=testRealTime&&""!=testRealTime&&"1970-01-01"!=testRealTime){
+                // 资料发布阶段
+                if(null==publishTime||""==publishTime||"1970-01-01"==publishTime){
+                    continue;
+                }
+                var dayGap = calculateGap(publishTime,publishRealTime);
+                if(dayGap<=0){
+                    result++;
+                }
+            }else if(null!=prototypeRealTime&&""!=prototypeRealTime&&"1970-01-01"!=prototypeRealTime){
+                // 测试阶段
+                if(null==testTime||""==testTime||"1970-01-01"==testTime){
+                    continue;
+                }
+                var dayGap = calculateGap(testTime,testRealTime);
+                if(dayGap<=0){
+                    result++;
+                }
+            }else if(null!=phoneRealTime&&""!=phoneRealTime&&"1970-01-01"!=phoneRealTime){
+                // 样机阶段
+                if(null==prototypeTime||""==prototypeTime||"1970-01-01"==prototypeTime){
+                    continue;
+                }
+                var dayGap = calculateGap(prototypeTime,prototypeRealTime);
+                if(dayGap<=0){
+                    result++;
+                }
+            }else if(null!=schemeRealTime&&""!=schemeRealTime&&"1970-01-01"!=schemeRealTime){
+                // 手板/开模阶段
+                if(null==phoneTime||""==phoneTime||"1970-01-01"==phoneTime){
+                    continue;
+                }
+                var dayGap = calculateGap(phoneTime,phoneRealTime);
+                if(dayGap<=0){
+                    result++;
+                }
+            } else{
+                // 方案阶段
+                if(null==schemeTime||""==schemeTime||"1970-01-01"==schemeTime){
+                    continue;
+                }
+                var dayGap = calculateGap(schemeTime,schemeRealTime);
+                if(dayGap<=0){
+                    result++;
+                }
+            }
+        }
+        return result;
+    }
+
+    /*
+     * 计算时间差(dayFinish有可能未填写)，获取okNumbers
+     */
+    function calculateGap(dayExpected,dayFinish){
+        if(null==dayFinish||""==dayFinish.trim()||"1970-01-01"==dayFinish){
+            // 实际完成时间尚未填写，粗糙认为dayFinish为当前日期，不影响okNumbers的值
+            dayFinish = $("body").attr("value");
+        }
+        var dayGap = twoDateGap(dayExpected,dayFinish);
+        return dayGap;
+    }
+
+    /*
+     * 切屏显示数据列表，分页逻辑
+     */
+    function switchScreen(result){
+        var start = curPage*pageSize;
+        var end = (curPage+1)*pageSize;
+        if(end>result.length){
+            end = result.length;
+        }
+        var trs="";
+        var schemeRealMap = new HashMap();
+        var phoneRealMap = new HashMap();
+        var prototypeRealMap = new HashMap();
+        var testRealMap = new HashMap();
+        var publishRealMap = new HashMap();
+        for (var i = start; i < end; i++) {
+            var chiefMembers = result[i].chargeMan;
+            if(""!=result[i].members&&null!=result[i].members){
+                chiefMembers = result[i].chargeMan + "，" + result[i].members;
+            }
+            var finishStr = "-";
+            if(2==parseInt(result[i].status)){
+                finishStr = "√";
+            }
+            var tr = "<tr code=\"" + result[i].code + "\" status=\"" + result[i].status + "\"><td>" + result[i].name + "</td><td>" + result[i].model + "</td><td>" + chiefMembers + "</td><td class=\"td-center\">" + ("1970-01-01" == result[i].startTime ? "-" : result[i].startTime)
+                + "</td><td class=\"td-center\">" + ("1970-01-01" == result[i].endTime ? "-" : result[i].endTime) + "</td><td name=\"scheme\" class=\"td-center\"><span name=\"scheme_time\">" + ("1970-01-01" == result[i].schemeTime ? "-" : result[i].schemeTime)
+                + "</span><span name=\"scheme_tag\" class=\"t-span\"></span></td><td name=\"phone\" class=\"td-center\"><span name=\"phone_time\">" + ("1970-01-01" == result[i].phoneTime ? "-" : result[i].phoneTime)
+                + "</span><span name=\"phone_tag\" class=\"t-span\"></span></td><td name=\"prototype\" class=\"td-center\"><span name=\"prototype_time\">" + ("1970-01-01" == result[i].prototypeTime ? "-" : result[i].prototypeTime)
+                + "</span><span name=\"prototype_tag\" class=\"t-span\"></span></td><td name=\"test\" class=\"td-center\"><span name=\"test_time\">" + ("1970-01-01" == result[i].testTime ? "-" : result[i].testTime)
+                + "</span><span name=\"test_tag\" class=\"t-span\"></span></td><td name=\"publish\" class=\"td-center\"><span name=\"publish_time\">" + ("1970-01-01" == result[i].publishTime ? "-" : result[i].publishTime)
+                + "</span><span name=\"publish_tag\" class=\"t-span\"></span></td><td name=\"is_finish\" class=\"td-center\">"+finishStr+"</td><td name=\"progress\"></td>";
+            trs += tr;
+            schemeRealMap.put(result[i].code, result[i].schemeRealTime);
+            phoneRealMap.put(result[i].code, result[i].phoneRealTime);
+            prototypeRealMap.put(result[i].code, result[i].prototypeRealTime);
+            testRealMap.put(result[i].code, result[i].testRealTime);
+            publishRealMap.put(result[i].code, result[i].publishRealTime);
+        }
+        $("#t-data").html(trs);
+        renderTime(schemeRealMap, phoneRealMap, prototypeRealMap, testRealMap, publishRealMap);
+        // 因为curPage从0起步
+        var totalPageIndex = Math.ceil(result.length/pageSize)-1;
+        if(curPage<totalPageIndex){
+            curPage++;
+        }else {
+            curPage = 0;
+        }
+    }
+
+    function scrollOverWidth(){
+        $("#t-data").children("tr").each(function () {
+            var tdName = $(this).children("td").eq(0);
+            var itemNameTxt = $(tdName).text();
+            var itemNameWidth = $("#textWidth").html(itemNameTxt).width();
+            if(itemNameWidth>130){
+                $(tdName).html("<marquee><span>"+itemNameTxt+"</span></marquee>");
+            }
+
+            var tdChargeMan = $(this).children("td").eq(2);
+            var chargeManTxt = $(tdChargeMan).text();
+            var chargeManWidth = $("#textWidth").html(chargeManTxt).width();
+            if(chargeManWidth>130){
+                $(tdChargeMan).html("<marquee><span>"+chargeManTxt+"</span></marquee>");
+            }
+
+            var tdProgress = $(this).children("td").eq(11);
+            var progressTxt = $(tdProgress).text();
+            var progressWidth = $("#textWidth").html(progressTxt).width();
+            if(progressWidth>130){
+                $(tdProgress).html("<marquee><span>"+progressTxt+"</span></marquee>");
+            }
+
+            var tdModel = $(this).children("td").eq(1);
+            var modelTxt = $(tdModel).text();
+            var modelWidth = $("#textWidth").html(modelTxt).width();
+            if(modelWidth>130){
+                $(tdModel).html("<marquee><span>"+modelTxt+"</span></marquee>");
+            }
+            //
+            $("#textWidth").html("");
+
+        });
+    }
+
+    Date.prototype.Format = function (fmt) {
+        var o = {
+            "M+": this.getMonth() + 1, //月份
+            "d+": this.getDate(), //日
+            "H+": this.getHours(), //小时
+            "m+": this.getMinutes(), //分
+            "s+": this.getSeconds(), //秒
+            "q+": Math.floor((this.getMonth() + 3) / 3), //季度
+            "S": this.getMilliseconds() //毫秒
+        };
+        if (/(y+)/.test(fmt)) fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
+        for (var k in o)
+            if (new RegExp("(" + k + ")").test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+        return fmt;
+    }
+
+</script>
+
+<span stlye="display:none;" id="textWidth"/>
+</body>
+</html>

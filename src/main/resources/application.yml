@@ -1,0 +1,44 @@
+server:
+  port: 8081
+management:
+  server:
+    servlet:
+      context-path: /
+    ssl:
+      enabled: false
+  endpoint:
+    health:
+      show-details: always
+
+spring:
+  thymeleaf:
+    cache: false
+    prefix: classpath:/templates/
+    check-template-location: true
+    suffix: .html
+    encoding: UTF-8
+    content-type: text/html
+    mode: HTML5
+  datasource:
+    url: jdbc:mysql://127.0.0.1:3306/promanage?useUnicode=true&zeroDateTimeBehavior=convertToNull&autoReconnect=true&characterEncoding=UTF-8
+    username: root
+    password:
+    driver-class-name: com.mysql.jdbc.Driver
+
+app:
+  id: pro-management
+#生产效益看板服务信息
+#product-service:
+#  url: 116.62.180.134
+#  port: 8090
+product-service:
+  url: 192.168.40.132
+  port: 8080
+
+mybatis:
+  mapper-locations: classpath*:mybatis/*Mapper.xml
+  #mybatis.mapper-locations=classpath:mapper/*.xml        #这种方式需要自己在resources目录下创建mapper目录然后存放xml
+  type-aliases-package: com.syswin.sms.bean
+  # 驼峰命名规范 如：数据库字段是  order_id 那么 实体字段就要写成 orderId
+  configuration:
+    map-underscore-to-camel-case: true
